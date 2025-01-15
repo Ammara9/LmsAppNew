@@ -31,7 +31,7 @@ public static class SeedData
                 await GenerateUsersAsync(5);
                 await db.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception) //ex)
             {
                 throw;
             }
