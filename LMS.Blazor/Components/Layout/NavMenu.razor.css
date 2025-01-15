@@ -11,9 +11,9 @@
     background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
 }
 
-.navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+    .navbar-toggler:checked {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
 
 .top-row {
     height: 3.5rem;
@@ -91,15 +91,15 @@
         width: 100%;
     }
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
+    .nav-item ::deep a.active {
+        background-color: rgba(255,255,255,0.37);
+        color: white;
+    }
 
-.nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+    .nav-item ::deep .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
 
 .nav-scrollable {
     display: none;
@@ -108,62 +108,7 @@
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
-/* Base styles for the dropdown */
-.nav-item.dropdown {
-    position: relative;
-    display: inline-block; /* Ensures the dropdown aligns properly */
-    font-size: 0.9rem; /* Match the font size of other nav items */
-}
 
-    .nav-item.dropdown .dropdown-toggle {
-        display: block;
-        padding: 0.5rem 1rem; /* Match padding of other nav items */
-        line-height: 3rem; /* Match the line height */
-        height: 3rem; /* Match height of other nav items */
-        width: 100%; /* Ensure the toggle takes up full width */
-        color: #d7d7d7;
-        background: none;
-        border: none;
-        border-radius: 4px;
-    }
-
-    /* The dropdown menu */
-    .nav-item.dropdown .dropdown-menu {
-        display: none; /* Hidden by default */
-        position: absolute;
-        top: 100%; /* Positions below the toggle link */
-        left: 0;
-        background-color: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-        min-width: 10rem;
-        padding: 0.5rem 0;
-        z-index: 1000;
-        list-style: none;
-        font-size: 0.9rem; /* Match font size of other nav items */
-    }
-
-        /* Dropdown items */
-        .nav-item.dropdown .dropdown-menu .dropdown-item {
-            padding: 0.5rem 1rem;
-            color: #333;
-            text-decoration: none;
-            display: block;
-            width: 100%; /* Ensure the items span full width */
-        }
-
-            /* Hover effect for dropdown items */
-            .nav-item.dropdown .dropdown-menu .dropdown-item:hover {
-                background-color: #f8f9fa;
-                color: #0056b3;
-            }
-
-    /* Show the dropdown on hover */
-    .nav-item.dropdown:hover .dropdown-menu {
-        display: block;
-    }
-
-/* Responsive Styles for Navbar Toggler */
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
@@ -177,5 +122,25 @@
         overflow-y: auto;
     }
 }
+/* Subnav styles */
+.toggle-subnav {
+    display: none; /* Hide the checkbox */
+}
 
+.nav-link {
+    cursor: pointer; /* Change cursor to pointer for the label */
+}
+
+.subnav {
+    display: none; /* Hide subnav by default */
+    padding-left: 20px; /* Indent subnav items */
+    background-color: rgba(103,114,155,255);
+}
+
+.toggle-subnav:checked + .nav-link + .subnav {
+    display: block; /* Show subnav when checkbox is checked */
+}
+
+.subnav .nav-item {
+    padding: 5px 0; /* Add some spacing for subnav items */
 }
