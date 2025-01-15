@@ -36,24 +36,9 @@ public static class SeedData
             {
                 await CreateRolesAsync(roleNames);
 
-                var adminUser = await GenerateAdminAsync(
-                    "Admin",
-                    "lms_admin@madeup.domain",
-                    "1Hemligt!",
-                    roleNames[0]
-                );
-                var teacherUser = await GenerateAdminAsync(
-                    "Teacher",
-                    "lms_teacher@madeup.domain",
-                    "Pwteacher@11",
-                    roleNames[1]
-                );
-                var studentUser = await GenerateAdminAsync(
-                    "Student",
-                    "lms_student@madeup.domain",
-                    "Pwstudent@22",
-                    roleNames[2]
-                );
+                var adminUser = await GenerateAdminAsync("Admin", "lms_admin@madeup.domain", "1Hemligt!", roleNames[0]);
+                var teacherUser = await GenerateAdminAsync("Teacher", "lms_teacher@madeup.domain", "Pwteacher@11", roleNames[1]);
+                var studentUser = await GenerateAdminAsync("Student", "lms_student@madeup.domain", "Pwstudent@22", roleNames[2]);
 
                 await GenerateUsersAsync(5);
 
@@ -105,19 +90,14 @@ public static class SeedData
         }
     }
 
-    private static async Task<ApplicationUser> GenerateAdminAsync(
-        string userName,
-        string emailId,
-        string passWord,
-        string roleName
-    )
+    private static async Task<ApplicationUser> GenerateAdminAsync(string userName, string emailId, string passWord, string roleName)
     {
+
         //ToDo: Add to user.secrets
         //var passWord = "1Hemligt!";
         var found = await userManager.FindByEmailAsync(emailId);
 
-        if (found != null)
-            return null!;
+        if (found != null) return null!;
 
         if (string.IsNullOrEmpty(passWord))
             throw new Exception("password not found");
@@ -126,7 +106,7 @@ public static class SeedData
         {
             UserName = userName,
             Email = emailId,
-            PasswordHash = passWord,
+            PasswordHash = passWord
         };
 
         var result = await userManager.CreateAsync(applicationUser, passWord);
@@ -142,8 +122,8 @@ public static class SeedData
         if (!await userManager.IsInRoleAsync(user, roleName))
         {
             var result = await userManager.AddToRoleAsync(user, roleName);
-            if (!result.Succeeded)
-                throw new Exception(string.Join("\n", result.Errors));
+            if (!result.Succeeded) throw new Exception(string.Join("\n", result.Errors));
+
         }
     }
 }
