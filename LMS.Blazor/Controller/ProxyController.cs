@@ -1,9 +1,9 @@
-﻿using LMS.Blazor.Services;
+﻿using System.Net.Http.Headers;
+using System.Security.Claims;
+using LMS.Blazor.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 
 namespace LMS.Blazor.Controller;
 
@@ -25,16 +25,15 @@ public class ProxyController : ControllerBase
     //[HttpPut]
     //[HttpDelete]
     //[HttpPatch]
-    [HttpGet("{*endpoint}")]
+    [Route("{*endpoint}")]
     [Authorize]
     public async Task<IActionResult> Proxy(string endpoint) //ToDo send endpoint uri here!
     {
-       // string endpoint = "api/demoauth";
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Usermanager can be used here! 
+        // string endpoint = "api/demoauth";
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Usermanager can be used here!
 
         if (userId == null)
             return Unauthorized();
-
 
         var accessToken = await _tokenService.GetAccessTokenAsync(userId);
 
@@ -46,7 +45,10 @@ public class ProxyController : ControllerBase
             return Unauthorized();
         }
         var client = _httpClientFactory.CreateClient("LmsAPIClient");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            accessToken
+        );
 
         var targetUri = new Uri($"{client.BaseAddress}{endpoint}{Request.QueryString}");
         var method = new HttpMethod(Request.Method);
@@ -64,7 +66,6 @@ public class ProxyController : ControllerBase
                 requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
             }
         }
-
 
         var response = await client.SendAsync(requestMessage);
 

@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace LMS.Shared.DTOs;
+
 public class CourseDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
-
+    public string Description { get; set; } = string.Empty;
+    public DateTime StartDate { get; set; }
 }

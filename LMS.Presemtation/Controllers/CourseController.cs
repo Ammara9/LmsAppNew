@@ -25,12 +25,18 @@ public class CourseController : ControllerBase
 
     [HttpPost]
     //[Authorize]
-    public async Task<IActionResult> CreateCourse([FromBody] Course course)
+    public async Task<IActionResult> CreateCourse([FromBody] CourseDto courseDto)
     {
-        if (course == null)
+        if (courseDto == null)
         {
             return BadRequest("Course cannot be null.");
         }
+        var course = new Course
+        {
+            Name = courseDto.Name,
+            Description = courseDto.Description,
+            StartDate = courseDto.StartDate,
+        };
 
         _context.Courses!.Add(course);
         await _context.SaveChangesAsync();
@@ -42,19 +48,27 @@ public class CourseController : ControllerBase
     public async Task<IActionResult> GetDemoAuth()
     {
         // Fetch data from the database
-        var databaseCourses = await _context.Courses!.ToListAsync();
+        var databaseCourses = await _context
+            .Courses.Select(c => new CourseDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                StartDate = c.StartDate,
+            })
+            .ToListAsync();
 
         // Add some hardcoded courses
-        var hardcodedCourses = new List<Course>
+        var hardcodedCourses = new List<CourseDto>
         {
-            new Course
+            new CourseDto
             {
                 Id = 1,
                 Name = "C#",
                 Description = "Introduction to C#",
                 StartDate = DateTime.Now.AddDays(10),
             },
-            new Course
+            new CourseDto
             {
                 Id = 2,
                 Name = "Python Basics",

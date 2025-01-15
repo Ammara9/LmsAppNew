@@ -41,9 +41,40 @@ public class ClientApiService(
         return demoDtos;
     }
 
-    public async Task<bool> PostApiAsync<TRequest>(string endpoint, TRequest content)
+    public async Task<TResponse?> PostApiAsync<TRequest, TResponse>(
+        string endpoint,
+        TRequest content
+    )
     {
-        var response = await httpClient.PostAsJsonAsync($"proxy-endpoint/{endpoint}", content);
-        return response.IsSuccessStatusCode;
+        // Create an HttpRequestMessage for a POST request
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"proxy-endpoint/{endpoint}")
+        {
+            Content = JsonContent.Create(content, options: _jsonSerializerOptions),
+        };
+
+        // Send the request using HttpClient
+        var response = await httpClient.SendAsync(requestMessage);
+
+        // Handle unauthorized or forbidden responses
+        if (
+            response.StatusCode == System.Net.HttpStatusCode.Forbidden
+            || response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+        )
+        {
+            navigationManager.NavigateTo("AccessDenied");
+            return default;
+        }
+
+        // Ensure the response was successful
+        response.EnsureSuccessStatusCode();
+
+        // Deserialize and return the response content
+        var result = await JsonSerializer.DeserializeAsync<TResponse>(
+            await response.Content.ReadAsStreamAsync(),
+            _jsonSerializerOptions,
+            CancellationToken.None
+        );
+
+        return result;
     }
 }

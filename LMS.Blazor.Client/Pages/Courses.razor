@@ -2,7 +2,7 @@
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
-@using Domain.Models.Entities
+@using LMS.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -65,8 +65,8 @@ else
 
 @code {
     // [SupplyParameterFromForm]
-    private List<Course>? courses;
-    private Course newCourse = new() { StartDate = DateTime.Now };
+    private List<CourseDto>? courses;
+    private CourseDto newCourse = new() { StartDate = DateTime.Now };
     [Inject]
     private IApiService _apiService { get; set; } = default!;
     [Inject]
@@ -76,15 +76,24 @@ else
 
     private async Task CallAPIAsync()
     {
-        courses = (await _apiService.CallApiAsync<IEnumerable<Course>>("api/courses"))?.ToList() ?? [];
+        courses = (await _apiService.CallApiAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
     }
 
     private async Task AddCourseAsync()
     {
-        var response = await _apiService.PostApiAsync("api/courses", newCourse);
-        if (response)
+        // Call PostApiAsync to send the new course data
+        var createdCourse = await _apiService.PostApiAsync<CourseDto, IEnumerable<CourseDto>>("api/courses", newCourse);
+
+        if (createdCourse != null)
         {
-            await CallAPIAsync(); // Refresh the list
+            // Refresh the course list if the course was successfully created
+            await CallAPIAsync();
+        }
+        else
+        {
+            // Handle the failure case, such as logging or showing an error message
+            Console.WriteLine("Failed to add the course.");
         }
     }
+
 }
