@@ -1,0 +1,74 @@
+﻿@page "/addcourse"
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+
+@attribute [Authorize]
+
+<h2>Add a New Course</h2>
+<EditForm Model="newCourse" method="post" OnValidSubmit="AddCourseAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group row">
+        <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="name" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourse.Name" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="description" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourse.Description" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
+        <div class="col-sm-12 col-md-4">
+            <InputDate id="startDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourse.StartDate" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success pl-5 col-md-2 mx-auto">Submit</button>
+</EditForm>
+
+
+
+
+@code {
+    private List<CourseDto>? courses;
+    private CourseDto newCourse = new() { StartDate = DateTime.Now };
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+
+    private async Task CallAPIAsync()
+    {
+        courses = (await _apiService.CallApiAsync<IEnumerable<CourseDto>>("api/addcourse"))?.ToList() ?? [];
+    }
+
+    private async Task AddCourseAsync()
+    {
+        // Call PostApiAsync to send the new course data
+        var createdCourse = await _apiService.PostApiAsync<CourseDto, IEnumerable<CourseDto>>("api/addcourse", newCourse);
+
+        if (createdCourse != null)
+        {
+            // Refresh the course list if the course was successfully created
+            await CallAPIAsync();
+        }
+        else
+        {
+            // Handle the failure case, such as logging or showing an error message
+            Console.WriteLine("Failed to add the course.");
+        }
+    }
+}

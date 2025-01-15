@@ -1,6 +1,7 @@
 ﻿@page "/courses"
 @rendermode InteractiveWebAssembly
 
+@using Microsoft.AspNetCore.Components
 @using LMS.Blazor.Client.Services
 @using LMS.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
@@ -10,90 +11,72 @@
 
 <h1>Courses</h1>
 
-<button class="btn btn-primary" @onclick="CallAPIAsync">Get Courses</button>
+<button class="btn btn-primary mb-3 d-block" @onclick="CallAPIAsync">Refresh</button>
 
 @if (courses == null)
 {
-    <p>API not called yet</p>
+    <p class="text-center">Refresh to get courses</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
+    <!-- Modify the row-cols-md to 4 to show 4 cards per row on medium screens and above -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+        @foreach (var item in courses)
+        {
+            <div class="col">
+                <div class="card border-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title fw-bold text-center">@item.Name</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Description:</strong> @item.Description</p>
+                        <p class="card-text"><strong>ID:</strong> @item.Id</p>
 
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Start Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in courses)
-            {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td>@item.StartDate.ToShortDateString()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <div class="d-flex justify-content-center mb-3">
+                            <a href="/editcourse" class="btn btn-info mx-2">Edit Course</a>
+                            <a href="/deletecourse" class="btn btn-danger mx-2" @* @onclick="() => DeleteCourse(item.Id) *@">Delete Course</a>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <a href="/registerstudent" class="btn btn-success mx-2">Add Student</a>
+                            <a href="/module" class="btn btn-warning mx-2">Add Module</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 
-<h2>Add a New Course</h2>
-<EditForm Model="newCourse" method="post" OnValidSubmit="AddCourseAsync">
-
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="form-group">
-        <label for="name">Name</label>
-        <InputText id="name" class="form-control" @bind-Value="newCourse.Name" />
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <InputText id="description" class="form-control" @bind-Value="newCourse.Description" />
-    </div>
-    <div class="form-group">
-        <label for="startDate">Start Date</label>
-        <InputDate id="startDate" class="form-control" @bind-Value="newCourse.StartDate" />
-    </div>
-    <button type="submit" class="btn btn-success">Submit</button>
-</EditForm>
-
 @code {
-    // [SupplyParameterFromForm]
     private List<CourseDto>? courses;
-    private CourseDto newCourse = new() { StartDate = DateTime.Now };
     [Inject]
     private IApiService _apiService { get; set; } = default!;
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-
-
 
     private async Task CallAPIAsync()
     {
         courses = (await _apiService.CallApiAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
     }
 
-    private async Task AddCourseAsync()
+    private void EditCourse(int id)
     {
-        // Call PostApiAsync to send the new course data
-        var createdCourse = await _apiService.PostApiAsync<CourseDto, IEnumerable<CourseDto>>("api/courses", newCourse);
-
-        if (createdCourse != null)
-        {
-            // Refresh the course list if the course was successfully created
-            await CallAPIAsync();
-        }
-        else
-        {
-            // Handle the failure case, such as logging or showing an error message
-            Console.WriteLine("Failed to add the course.");
-        }
+        // Implement the Edit Course logic here
     }
 
+    private void DeleteCourse(int id)
+    {
+        // Implement the Delete Course logic here
+    }
+
+    private void AddStudent(int id)
+    {
+        // Implement the Add Student logic here
+    }
+
+    private void AddModule(int id)
+    {
+        // Implement the Add Module logic here
+    }
 }

@@ -65,7 +65,7 @@ public class CourseController : ControllerBase
             {
                 Id = 1,
                 Name = "C#",
-                Description = "Introduction to C#",
+                Description = "Introduction to C# and .NET",
                 StartDate = DateTime.Now.AddDays(10),
             },
             new CourseDto
