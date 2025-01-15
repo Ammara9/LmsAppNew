@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.11.4" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.Contracts\Domain.Contracts.csproj" />
+    <ProjectReference Include="..\Domain.Models\Domain.Models.csproj" />
+    <ProjectReference Include="..\LMS.Infrastructure\LMS.Infrastructure.csproj" />
+    <ProjectReference Include="..\LMS.Shared\LMS.Shared.csproj" />
+    <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
