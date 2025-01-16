@@ -1,4 +1,4 @@
-﻿@page "/demoauth"
+﻿@* @page "/demoauth"
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
@@ -62,3 +62,4 @@ else
         demo = (await _apiService.CallApiAsync<IEnumerable<DemoDto>>("api/demoauth"))?.ToList() ?? [];
     } 
 }
+ *@

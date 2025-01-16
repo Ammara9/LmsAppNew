@@ -16,70 +16,26 @@ namespace LMS.Presemtation.Controllers;
 [ApiController]
 public class CourseController : ControllerBase
 {
-    private readonly LmsContext _context;
-
-    public CourseController(LmsContext context)
+    [HttpGet]
+    [Authorize]
+    public IActionResult GetCourses()
     {
-        _context = context;
+        return Ok(
+            new CourseDto[]
+            {
+                new CourseDto { Id = 1, Name = "From course controller" },
+                new CourseDto { Id = 2, Name = "Anka" },
+                new CourseDto { Id = 3, Name = "Nisse" },
+                new CourseDto { Id = 4, Name = "Pelle" },
+            }
+        );
     }
 
     [HttpPost]
-    //[Authorize]
-    public async Task<IActionResult> CreateCourse([FromBody] CourseDto courseDto)
+    [Authorize]
+    public IActionResult CreateCourses(CourseDto courseDto)
     {
-        if (courseDto == null)
-        {
-            return BadRequest("Course cannot be null.");
-        }
-        var course = new Course
-        {
-            Name = courseDto.Name,
-            Description = courseDto.Description,
-            StartDate = courseDto.StartDate,
-        };
-
-        _context.Courses!.Add(course);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetDemoAuth), new { id = course.Id }, course);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetDemoAuth()
-    {
-        // Fetch data from the database
-        var databaseCourses = await _context
-            .Courses.Select(c => new CourseDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                StartDate = c.StartDate,
-            })
-            .ToListAsync();
-
-        // Add some hardcoded courses
-        var hardcodedCourses = new List<CourseDto>
-        {
-            new CourseDto
-            {
-                Id = 1,
-                Name = "C#",
-                Description = "Introduction to C# and .NET",
-                StartDate = DateTime.Now.AddDays(10),
-            },
-            new CourseDto
-            {
-                Id = 2,
-                Name = "Python Basics",
-                Description = "Learn Python from scratch",
-                StartDate = DateTime.Now.AddDays(20),
-            },
-        };
-
-        // Combine both lists
-        var allCourses = databaseCourses.Concat(hardcodedCourses).ToList();
-
-        return Ok(allCourses);
+        var returnCourse = new CourseDto { Id = courseDto.Id, Name = courseDto.Name };
+        return Ok(returnCourse);
     }
 }

@@ -1,7 +1,6 @@
 ﻿@page "/courses"
 @rendermode InteractiveWebAssembly
 
-@using Microsoft.AspNetCore.Components
 @using LMS.Blazor.Client.Services
 @using LMS.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
@@ -9,74 +8,73 @@
 
 @attribute [Authorize]
 
-<h1>Courses</h1>
+<h1>Getting courses</h1>
 
-<button class="btn btn-primary mb-3 d-block" @onclick="CallAPIAsync">Refresh</button>
 
-@if (courses == null)
+<button class="btn btn-primary" @onclick="CallAPIAsync">GetCourses</button>
+<button class="btn btn-primary" @onclick="CreateCourseAsync">PostCourse</button>
+
+
+@if (demo == null)
 {
-    <p class="text-center">Refresh to get courses</p>
+    <p>API not called yet</p>
 }
 else
 {
-    <!-- Modify the row-cols-md to 4 to show 4 cards per row on medium screens and above -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
-        @foreach (var item in courses)
-        {
-            <div class="col">
-                <div class="card border-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title fw-bold text-center">@item.Name</h3>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><strong>Description:</strong> @item.Description</p>
-                        <p class="card-text"><strong>ID:</strong> @item.Id</p>
-
-                        <div class="d-flex justify-content-center mb-3">
-                            <a href="/editcourse" class="btn btn-info mx-2">Edit Course</a>
-                            <a href="/deletecourse" class="btn btn-danger mx-2" @* @onclick="() => DeleteCourse(item.Id) *@">Delete Course</a>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <a href="/registerstudent" class="btn btn-success mx-2">Add Student</a>
-                            <a href="/module" class="btn btn-warning mx-2">Add Module</a>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in demo)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>Hej auth user</p>
+    </Authorized>
+</AuthorizeView>
+
+@if(courseDto is null)
+{
+    <p>No value</p>
+}
+else
+{
+    <h4>After post</h4>
+    <p>Id:   @courseDto?.Id</p>
+    <p>Name: @courseDto?.Name</p>
+}
+
+
+
 @code {
-    private List<CourseDto>? courses;
+
     [Inject]
     private IApiService _apiService { get; set; } = default!;
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
+    private List<CourseDto>? demo;
+    private CourseDto? courseDto;
+
     private async Task CallAPIAsync()
     {
-        courses = (await _apiService.CallApiAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
-    }
+        demo = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
+    } 
 
-    private void EditCourse(int id)
+    private async Task CreateCourseAsync()
     {
-        // Implement the Edit Course logic here
-    }
-
-    private void DeleteCourse(int id)
-    {
-        // Implement the Delete Course logic here
-    }
-
-    private void AddStudent(int id)
-    {
-        // Implement the Add Student logic here
-    }
-
-    private void AddModule(int id)
-    {
-        // Implement the Add Module logic here
+        var dto = new CourseDto { Id = 1, Name = "Created at blazor" };
+        courseDto = (await _apiService.PostAsync<CourseDto, CourseDto>("api/courses", dto));
     }
 }

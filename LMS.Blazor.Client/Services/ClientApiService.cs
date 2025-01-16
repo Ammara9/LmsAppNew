@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using LMS.Blazor.Client.Models;
@@ -17,64 +18,49 @@ public class ClientApiService(
     private readonly JsonSerializerOptions _jsonSerializerOptions =
         new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    //ToDo: Make generic
-    public async Task<TResponse?> CallApiAsync<TResponse>(string endpoint)
+    public async Task<TResponse?> GetAsync<TResponse>(string endpoint)
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"proxy-endpoint/{endpoint}");
-        var response = await httpClient.SendAsync(requestMessage);
-
-        if (
-            response.StatusCode == System.Net.HttpStatusCode.Forbidden
-            || response.StatusCode == System.Net.HttpStatusCode.Unauthorized
-        )
-        {
-            navigationManager.NavigateTo("AccessDenied");
-        }
-
-        response.EnsureSuccessStatusCode();
-
-        var demoDtos = await JsonSerializer.DeserializeAsync<TResponse>(
-            await response.Content.ReadAsStreamAsync(),
-            _jsonSerializerOptions,
-            CancellationToken.None
-        );
-        return demoDtos;
+        return await CallApiAsync<object?, TResponse>(endpoint, HttpMethod.Get, null);
     }
 
-    public async Task<TResponse?> PostApiAsync<TRequest, TResponse>(
+    public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest dto)
+    {
+        return await CallApiAsync<TRequest, TResponse>(endpoint, HttpMethod.Post, dto);
+    }
+
+    private async Task<TResponse?> CallApiAsync<TRequest, TResponse>(
         string endpoint,
-        TRequest content
+        HttpMethod httpMethod,
+        TRequest? dto
     )
     {
-        // Create an HttpRequestMessage for a POST request
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"proxy-endpoint/{endpoint}")
+        var request = new HttpRequestMessage(httpMethod, $"proxy-endpoint/{endpoint}");
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        if (httpMethod != HttpMethod.Get && dto is not null)
         {
-            Content = JsonContent.Create(content, options: _jsonSerializerOptions),
-        };
+            var serialized = JsonSerializer.Serialize(dto);
+            request.Content = new StringContent(serialized);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        }
 
-        // Send the request using HttpClient
-        var response = await httpClient.SendAsync(requestMessage);
+        var response = await httpClient.SendAsync(request);
 
-        // Handle unauthorized or forbidden responses
         if (
             response.StatusCode == System.Net.HttpStatusCode.Forbidden
             || response.StatusCode == System.Net.HttpStatusCode.Unauthorized
         )
         {
             navigationManager.NavigateTo("AccessDenied");
-            return default;
         }
 
-        // Ensure the response was successful
         response.EnsureSuccessStatusCode();
 
-        // Deserialize and return the response content
-        var result = await JsonSerializer.DeserializeAsync<TResponse>(
+        var res = await JsonSerializer.DeserializeAsync<TResponse>(
             await response.Content.ReadAsStreamAsync(),
             _jsonSerializerOptions,
             CancellationToken.None
         );
-
-        return result;
+        return res;
     }
 }
