@@ -17,6 +17,12 @@
 
 <PageTitle>Register</PageTitle>
 
+<AuthorizeView Roles="Admin">
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>
+
 <div class="d-flex justify-content-center align-items-center">
     <div class="col-md-4">
 
