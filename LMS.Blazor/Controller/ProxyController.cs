@@ -20,16 +20,10 @@ public class ProxyController : ControllerBase
         _tokenService = tokenService;
     }
 
-    //[HttpGet]
-    //[HttpPost]
-    //[HttpPut]
-    //[HttpDelete]
-    //[HttpPatch]
     [Route("{*endpoint}")]
     [Authorize]
-    public async Task<IActionResult> Proxy(string endpoint) //ToDo send endpoint uri here!
+    public async Task<IActionResult> Proxy(string endpoint)
     {
-        // string endpoint = "api/demoauth";
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Usermanager can be used here!
 
         if (userId == null)
@@ -57,6 +51,13 @@ public class ProxyController : ControllerBase
         if (method != HttpMethod.Get && Request.ContentLength > 0)
         {
             requestMessage.Content = new StreamContent(Request.Body);
+
+            if (!string.IsNullOrWhiteSpace(Request.ContentType))
+            {
+                requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                    Request.ContentType
+                );
+            }
         }
 
         foreach (var header in Request.Headers)
@@ -70,8 +71,15 @@ public class ProxyController : ControllerBase
         var response = await client.SendAsync(requestMessage);
 
         if (!response.IsSuccessStatusCode)
-            return Unauthorized();
+            return Unauthorized(); //ToDo pass correct statuscode to caller
 
-        return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        Response.StatusCode = (int)response.StatusCode;
+        Response.ContentType =
+            response.Content.Headers.ContentType?.ToString() ?? "application/json";
+
+        var stream = await response.Content.ReadAsStreamAsync();
+        await stream.CopyToAsync(Response.Body);
+
+        return new EmptyResult();
     }
 }
