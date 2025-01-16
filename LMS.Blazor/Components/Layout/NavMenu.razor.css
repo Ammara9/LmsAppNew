@@ -11,9 +11,9 @@
     background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
 }
 
-.navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+    .navbar-toggler:checked {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
 
 .top-row {
     height: 3.5rem;
@@ -91,15 +91,15 @@
         width: 100%;
     }
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
+    .nav-item ::deep a.active {
+        background-color: rgba(255,255,255,0.37);
+        color: white;
+    }
 
-.nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+    .nav-item ::deep .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
 
 .nav-scrollable {
     display: none;
@@ -117,9 +117,49 @@
     .nav-scrollable {
         /* Never collapse the sidebar for wide screens */
         display: block;
-
         /* Allow sidebar to scroll for tall menus */
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
+}
+/* Subnav styles */
+/* Hide the toggle checkbox */
+.toggle-subnav {
+    display: none;
+}
+
+/* Style the toggle (label) */
+.nav-link {
+    cursor: pointer;
+    display: inline-block; /* Prevent the label from expanding unnecessarily */
+}
+
+/* Hide subnav by default */
+.subnav {
+    display: none;
+    position: absolute; /* Position relative to the parent container */
+    left: 0; /* Align with the toggle */
+    margin-top: 5px; /* Add spacing between toggle and subnav */
+    background-color: rgba(103, 114, 155, 1);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+/* Show subnav when checkbox is checked */
+.toggle-subnav:checked + .nav-link + .subnav {
+    display: block;
+}
+
+/* Style subnav items */
+.subnav .nav-item {
+    padding: 5px 10px;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Optional: Adjust hover effects */
+.subnav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
 }

@@ -6,4 +6,5 @@ namespace LMS.Blazor;
 //No navigationproperties or FK here!!!
 public class ApplicationUser : IdentityUser
 {
+    public string Name { get; set; } = string.Empty;
 }

@@ -1,8 +1,11 @@
 @implements IDisposable
 @inject NavigationManager NavigationManager
-<div class="top-row ps-3 navbar navbar-dark"> 
+
+@* @using LMS.Blazor.Client.Pages *@
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">LMS</a>
+        <a class="navbar-brand" href="">Lexicon LMS</a>
     </div>
 </div>
 
@@ -16,49 +19,95 @@
             </NavLink>
         </div>
         <AuthorizeView>
-             <NotAuthorized>
-                <div class="nav-item px-2">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                </div>
+            <NotAuthorized>
                 <div class="nav-item px-2">
                     <NavLink class="nav-link" href="account/login" Match="NavLinkMatch.All">
-                        <span class="i bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                        <span class="i bi-person-badge-nav-menu" aria-hidden="true"></span> Log in
                     </NavLink>
                 </div>
             </NotAuthorized>
-            <Authorized> 
+            <Authorized>
+
+
+
+             @*    <div class="nav-item px-2">
+                    <input type="checkbox" id="toggle-subnav" class="toggle-subnav" />
+                    <label for="toggle-subnav" class="nav-link">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Course
+                    </label>
+                    <div class="subnav">
+                        <!-- Use the Courses component here to render dynamic course links -->
+                        <LMS.Blazor.Client.Pages.DemoAuth />
+                    </div>
+                </div> *@
+
+
+
+
+
+
                 <div class="nav-item px-2">
-                    <NavLink class="nav-link" href="demoauth">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> DemoAuth 
+                    <input type="checkbox" id="toggle-subnav" class="toggle-subnav" />
+                    <label for="toggle-subnav" class="nav-link dropdown-toggle">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Course
+                    </label>
+                    <div class="subnav">
+                        <div class="nav-item">
+                            <NavLink class="nav-link" href="courses/course1">
+                                <span class="bi bi-file-earmark-text" aria-hidden="true"></span> Course 1
+                            </NavLink>
+                        </div>
+                        <div class="nav-item">
+                            <NavLink class="nav-link" href="courses/course2">
+                                <span class="bi bi-file-earmark-text" aria-hidden="true"></span> Course 2
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="nav-item px-2">
+                    <NavLink class="nav-link" href="addcourse">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Add Course
                     </NavLink>
                 </div>
                 <div class="nav-item px-2">
-                <NavLink class="nav-link" href="courses">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Courses
-                </NavLink>
+                    <NavLink class="nav-link" href="courses">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Course
+                    </NavLink>
+                </div>
+                <div class="nav-item px-2">
+                    <NavLink class="nav-link" href="studentcourse">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Student Course
+                    </NavLink>
                 </div>
                 <div class="nav-item px-2">
                     <NavLink class="nav-link" href="Account/Manage">
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
                     </NavLink>
                 </div>
-                    <div class="nav-item px-2">
+                <div class="nav-item px-2">
+                    <NavLink class="nav-link" href="Account/Register">
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+                <div class="nav-item px-2">
                     <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                         <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout 
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                         </button>
                     </form>
                 </div>
-          </Authorized>
+            </Authorized>
         </AuthorizeView>
     </nav>
 </div>
 
 @code {
+    
     private string? currentUrl;
     protected override void OnInitialized()
     {

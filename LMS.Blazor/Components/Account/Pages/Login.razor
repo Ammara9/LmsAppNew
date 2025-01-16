@@ -16,9 +16,9 @@
 
 <PageTitle>Log in</PageTitle>
 
-<h1>Log in</h1>
-<div class="row">
+<div class="d-flex justify-content-center align-items-center">
     <div class="col-md-4">
+        <h1 class="text-center">Log in</h1>
         <section>
             <StatusMessage Message="@errorMessage" />
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
@@ -43,27 +43,21 @@
                     </label>
                 </div>
                 <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary mb-3">Log in</button>
                 </div>
                 <div>
                     <p>
                         <a href="Account/ForgotPassword">Forgot your password?</a>
                     </p>
-                    <p>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
-                    </p>
+                    @* <p> *@
+                    @*     <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a> *@
+                    @* </p> *@
+
                     <p>
                         <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
                     </p>
                 </div>
             </EditForm>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            <ExternalLoginPicker />
         </section>
     </div>
 </div>
@@ -98,7 +92,7 @@
         ApplicationUser? user = await UserManager.FindByEmailAsync(Input.Email);
         if (user == null)
         {
-            errorMessage = "Failed to login please try again.";
+            errorMessage = "Failed to login please try again (Email).";
             return;
         }
 
@@ -107,7 +101,7 @@
 
         if (tokens == null)
         {
-            errorMessage = "Failed to login please try again.";
+            errorMessage = "Failed to login please try again (Password).";
             return;
         }
 

@@ -1,8 +1,55 @@
 ﻿@page "/"
 
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 <PageTitle>Home</PageTitle>
 
-<h1>LMS starter template</h1>
+<div class="text-center mt-3">
+    <h1>Welcome to Lexicon LMS</h1>
 
-<p>You can use this template as a starter template or build from one from scratch!</p>
+    <p class="lead">Empowering Educators and Inspiring Students</p>
 
+    <img src="https://lh6.googleusercontent.com/proxy/4iKlBzGUXnokdmtXyTYQPXMZQDYcf1DlAnCSwre9Gq6TSrHb86kngArFEF9z45cOIFf3lrhflLmtHIc3g5IdgtRpxfyvrxcLkQOyRsBDH7xERAOQ" alt="LMS Logo" style="max-width: 200px; margin: 20px auto;" />
+
+    <p>Explore our resources to manage students, courses, and activities with ease.</p>
+
+    @if (!isLoggedIn)
+    {
+        <a class="btn btn-primary btn-lg" href="account/login">Log in</a>
+    }
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Lexicon LMS</h2>
+        <p>
+            A learning management system (LMS) is a software application for the administration, documentation, tracking, and delivery of educational courses,
+            training programs, materials, or learning and development programs.
+        </p>
+    </div>
+    <div class="col-md-6">
+        <h2>Key Features</h2>
+        <ul>
+            <li>Student Records Management</li>
+            <li>Course and Modules Insights</li>
+            <li>Manage Student Activities</li>
+        </ul>
+    </div>
+</div>
+
+<footer class="text-center mt-3">
+    <p>&copy; @DateTime.Now.Year Lexicon LMS. All rights reserved.</p>
+</footer>
+
+@code {
+    private bool isLoggedIn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity.IsAuthenticated;
+    }
+}
