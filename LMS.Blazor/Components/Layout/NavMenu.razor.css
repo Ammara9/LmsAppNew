@@ -123,24 +123,43 @@
     }
 }
 /* Subnav styles */
+/* Hide the toggle checkbox */
 .toggle-subnav {
-    display: none; /* Hide the checkbox */
+    display: none;
 }
 
+/* Style the toggle (label) */
 .nav-link {
-    cursor: pointer; /* Change cursor to pointer for the label */
+    cursor: pointer;
+    display: inline-block; /* Prevent the label from expanding unnecessarily */
 }
 
+/* Hide subnav by default */
 .subnav {
-    display: none; /* Hide subnav by default */
-    padding-left: 20px; /* Indent subnav items */
-    background-color: rgba(103,114,155,255);
+    display: none;
+    position: absolute; /* Position relative to the parent container */
+    left: 0; /* Align with the toggle */
+    margin-top: 5px; /* Add spacing between toggle and subnav */
+    background-color: rgba(103, 114, 155, 1);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure it appears above other elements */
 }
 
+/* Show subnav when checkbox is checked */
 .toggle-subnav:checked + .nav-link + .subnav {
-    display: block; /* Show subnav when checkbox is checked */
+    display: block;
 }
 
+/* Style subnav items */
 .subnav .nav-item {
-    padding: 5px 0; /* Add some spacing for subnav items */
+    padding: 5px 10px;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Optional: Adjust hover effects */
+.subnav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
 }
