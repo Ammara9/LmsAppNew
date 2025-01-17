@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Security.Claims;
+using Domain.Models.Entities;
 using Microsoft.AspNetCore.Components.Web;
 using LMS.Blazor.Client.Models;
 

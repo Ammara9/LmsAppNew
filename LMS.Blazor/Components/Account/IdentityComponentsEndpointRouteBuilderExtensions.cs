@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+using Domain.Models.Entities;
 using LMS.Blazor.Components.Account.Pages;
 using LMS.Blazor.Components.Account.Pages.Manage;
 

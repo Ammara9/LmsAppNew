@@ -1,3 +1,4 @@
+using Domain.Models.Entities;
 using LMS.Blazor;
 using LMS.Blazor.Client.Services;
 using LMS.Blazor.Components;

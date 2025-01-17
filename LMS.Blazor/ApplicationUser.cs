@@ -4,9 +4,10 @@ namespace LMS.Blazor;
 
 //Only used with Usermanager
 //No navigationproperties or FK here!!!
-public class ApplicationUser : IdentityUser
-{
-    public string Name { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
 
-}
+//public class ApplicationUser : IdentityUser
+//{
+//    public string Name { get; set; } = string.Empty;
+//    public string Role { get; set; } = string.Empty;
+
+//}
