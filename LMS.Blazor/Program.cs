@@ -4,7 +4,7 @@ using LMS.Blazor.Components;
 using LMS.Blazor.Components.Account;
 using LMS.Blazor.Data;
 using LMS.Blazor.Services;
-
+using LMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,10 +36,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<LmsContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LmsContext") ?? throw new InvalidOperationException("Connection string 'CompaniesContext' not found.")));
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
@@ -47,7 +49,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     options.User.RequireUniqueEmail = true;
 })
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+    //.AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddEntityFrameworkStores<LmsContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
