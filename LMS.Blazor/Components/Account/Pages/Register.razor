@@ -11,6 +11,7 @@
 @using Microsoft.AspNetCore.Mvc
 @using Microsoft.AspNetCore.WebUtilities
 @using LMS.Blazor.Data
+@using LMS.Infrastructure.Data
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -19,6 +20,7 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject LMS.Infrastructure.Data.LmsContext DbContext
 
 <PageTitle>Register</PageTitle>
 
@@ -39,7 +41,7 @@
 			<h2 class="text-center">Create a new account</h2>
 			<hr />
 			<ValidationSummary class="text-danger" role="alert" />
-            <AntiforgeryToken />
+
 			<div class="form-floating mb-3">
 				<InputText @bind-Value="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="name" />
 				<label for="name">Name</label>
@@ -94,13 +96,14 @@
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
+	[IgnoreAntiforgeryToken]
 	public async Task RegisterUser(EditContext editContext)
 	{
-		if (!editContext.Validate())
-		{
-            // Validation failed; handle accordingly
-			return;
-		}
+		// if (!editContext.Validate())
+		// {
+           // Validation failed; handle accordingly
+		// 	return;
+		// }
 
 		var user = CreateUser();
 		user.Role = Input.Role; // Assign the role
