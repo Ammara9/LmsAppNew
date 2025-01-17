@@ -1,0 +1,129 @@
+﻿@page "/addcourse"
+@rendermode InteractiveWebAssembly
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@attribute [Authorize]
+
+<h2>Add a New Course</h2>
+<EditForm Model="newCourseDto" method="post">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group row">
+        <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="name" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourseDto.Name" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="description" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourseDto.Description" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
+        <div class="col-sm-12 col-md-4">
+            <InputDate id="startDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newCourseDto.StartDate" />
+        </div>
+    </div>
+    <div class="d-flex gap-2 mb-4">
+        <a href="/courses" class="btn btn-primary ">Back to Course</a>
+        <button type="submit" class="btn btn-success" @onclick="AddCourseAsync">Submit</button>
+    </div>
+</EditForm>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>Hej auth user</p>
+    </Authorized>
+</AuthorizeView>
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <div class="alert alert-success mt-2">@SuccessMessage</div>
+}
+
+@code {
+
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    private List<CourseDto>? courses;
+    private CourseDto newCourseDto = new() { StartDate = DateTime.Now };
+    private string? SuccessMessage;
+
+    /*private async Task CallAPIAsync()
+       {
+       courses = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
+    }*/
+
+    private async Task AddCourseAsync()
+    {
+
+        // Call PostApiAsync to send the new course data
+        var createdCourse = (await _apiService.PostAsync<CourseDto, CourseDto>("api/courses", newCourseDto));
+
+        if (createdCourse != null)
+        {
+            // Refresh the course list if the course was successfully created
+            //await CallAPIAsync();
+            SuccessMessage = "Course created successfully!";
+            StartDismissTimer();
+        }
+        else
+        {
+            // Handle the failure case, such as logging or showing an error message
+            Console.WriteLine("Failed to add the course.");
+        }
+    }
+
+    private void StartDismissTimer()
+    {
+        // Dismiss the alert after 5 seconds (5000 ms)
+        var timer = new System.Timers.Timer(5000);
+        timer.Elapsed += (sender, args) =>
+        {
+            SuccessMessage = string.Empty;
+            timer.Stop();
+            InvokeAsync(StateHasChanged); // Trigger UI update
+        };
+        timer.Start();
+    }
+}
+
+
+ 
+@*
+@code {
+
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    private List<CourseDto>? courses;
+    private CourseDto? courseDto;
+
+    private async Task CallAPIAsync()
+    {
+        courses = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
+    }
+
+    private async Task CreateCourseAsync()
+    {
+        var dto = new CourseDto { Id = 1, Name = "Created at blazor" };
+        courseDto = (await _apiService.PostAsync<CourseDto, CourseDto>("api/courses", dto));
+    }
+}
+*@
