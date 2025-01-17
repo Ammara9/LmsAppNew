@@ -82,11 +82,20 @@ public static class SeedData
         if (string.IsNullOrEmpty(passWord))
             throw new Exception("password not found");
 
-        foreach (var user in users)
+        // Alternate roles between Teacher and Student
+        var roles = new[] { "Teacher", "Student" };
+        for (int i = 0; i < users.Count; i++)
         {
+            var user = users[i];
+            var role = roles[i % roles.Length];  // Alternating between Teacher and Student
+
             var result = await userManager.CreateAsync(user, passWord);
             if (!result.Succeeded)
                 throw new Exception(string.Join("\n", result.Errors));
+
+            var addRoleResult = await userManager.AddToRoleAsync(user, role);
+            if (!addRoleResult.Succeeded)
+                throw new Exception(string.Join("\n", addRoleResult.Errors));
         }
     }
 
