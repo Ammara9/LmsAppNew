@@ -20,6 +20,13 @@ public static class SeedData
             var serviceProvider = scope.ServiceProvider;
             var db = serviceProvider.GetRequiredService<LmsContext>();
 
+            if (await db.Courses.AnyAsync())
+            {
+                var courses = await GenerateCoursesWithModulesAsync(2, 3);
+                db.Courses.AddRange(courses);
+                await db.SaveChangesAsync();
+            }
+
             if (await db.Users.AnyAsync())
                 return;
 
@@ -134,5 +141,35 @@ public static class SeedData
             if (!result.Succeeded) throw new Exception(string.Join("\n", result.Errors));
 
         }
+    }
+
+    private static async Task<IEnumerable<Course>> GenerateCoursesWithModulesAsync(int nrOfCourses, int nrOfModulesPerCourse)
+    {
+        var courseFaker = new Faker<Course>("sv").Rules(
+            (f, c) =>
+            {
+                c.Name = f.Hacker.Noun();
+                c.Description = $"{c.Name} basics";
+                c.StartDate = DateTime.Today + TimeSpan.FromDays(7);
+            }
+        );
+        var courses = courseFaker.Generate(nrOfCourses);
+
+        foreach (var course in courses)
+        {
+            var moduleFaker = new Faker<Module>("sv").Rules(
+                (f, m) =>
+                {
+                    m.Name = f.Hacker.IngVerb();
+                    m.Description = $"{m.Name} {course.Name}";
+                    m.CourseId = course.Id;
+                    m.StartDate = course.StartDate;
+                    m.EndDate = course.StartDate + TimeSpan.FromDays(5);
+                }
+            );
+            course.Modules = moduleFaker.Generate(nrOfModulesPerCourse);
+        }
+
+        return courses;
     }
 }
