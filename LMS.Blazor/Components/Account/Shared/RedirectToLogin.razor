@@ -3,13 +3,6 @@
 @code {
     protected override void OnInitialized()
     {
-        var returnUrl = NavigationManager.Uri;
-        if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("Account/Login"))
-        {
-            // Avoid navigating to the login page repeatedly
-            return;
-        }
-
-        NavigationManager.NavigateTo($"Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}", forceLoad: true); 
+        NavigationManager.NavigateTo($"Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true); 
     }
 }

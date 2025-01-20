@@ -23,13 +23,13 @@
 @inject IdentityRedirectManager RedirectManager
 @* @inject LMS.Infrastructure.Data.LmsContext DbContext *@
 
-<PageTitle>Register</PageTitle>
 
-<AuthorizeView Roles="Admin, Teacher">
-	<NotAuthorized>
-		<RedirectToLogin />
-	</NotAuthorized>
-</AuthorizeView>
+<PageTitle>Register</PageTitle>
+@* <AuthorizeView Roles="Admin, Teacher"> *@
+@* 	<NotAuthorized> *@
+@* 		<RedirectToLogin /> *@
+@* 	</NotAuthorized> *@
+@* </AuthorizeView> *@
 
 <div class="d-flex justify-content-center align-items-center">
 	<div class="col-md-4">
