@@ -20,5 +20,6 @@ namespace Domain.Models.Entities
 
         //Navigation Properties
         public ActivityType ActivityType { get; set; }
+        public Module Module { get; set; }
     }
 }

@@ -25,8 +25,8 @@ public class CourseController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]// GET: Get All courses list (api/courses)
-    [Authorize]
+    [HttpGet]// GET: Get All courses list (api/courses) 
+    //[Authorize]
     public async Task<ActionResult> GetAllCourses()
     {
         var courses = await _context.Courses.ToListAsync();
