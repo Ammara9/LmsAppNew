@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Models.Entities;
+using LMS.Infrastructure.Data;
+using LMS.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Domain.Models.Entities;
-using LMS.Infrastructure.Data;
 
 namespace LMS.API
 {
-    [Route("api/courses/{id}/module")]
+    [Route("api/courses/{courseId}/module")]
     [ApiController]
     public class ModulesController : ControllerBase
     {
@@ -21,80 +22,100 @@ namespace LMS.API
             _context = context;
         }
 
-        // GET: api/Modules
+        // GET: api/courses/{courseId}/module
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Module>>> GetModules()
+        public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModules(int courseId)
         {
-            return await _context.Modules!.ToListAsync();
+            var course = await _context
+                .Courses!.Include(c => c.Modules)
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (course == null)
+            {
+                return NotFound($"Course with ID {courseId} not found.");
+            }
+
+            var moduleDtos = course.Modules.Select(m => new ModuleDto
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Description = m.Description,
+                StartDate = m.StartDate,
+                EndDate = m.EndDate,
+                CourseId = m.CourseId,
+            });
+
+            return Ok(moduleDtos);
         }
 
-        // GET: api/Modules/5
+        // GET: api/courses/{courseId}/module/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Module>> GetModule(int id)
+        public async Task<ActionResult<ModuleDto>> GetModule(int courseId, int id)
         {
-            var @module = await _context.Modules!.FindAsync(id);
+            var module = await _context.Modules!.FirstOrDefaultAsync(m =>
+                m.Id == id && m.CourseId == courseId
+            );
 
-            if (@module == null)
+            if (module == null)
             {
-                return NotFound();
+                return NotFound($"Module with ID {id} for Course ID {courseId} not found.");
             }
 
-            return @module;
+            var moduleDto = new ModuleDto
+            {
+                Id = module.Id,
+                Name = module.Name,
+                Description = module.Description,
+                StartDate = module.StartDate,
+                EndDate = module.EndDate,
+                CourseId = module.CourseId,
+            };
+
+            return Ok(moduleDto);
         }
 
-        // PUT: api/Modules/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutModule(int id, Module @module)
-        {
-            if (id != @module.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(@module).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ModuleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Modules
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/courses/{courseId}/module
         [HttpPost]
-        public async Task<ActionResult<Module>> PostModule(Module @module)
+        public async Task<ActionResult<ModuleDto>> PostModule(int courseId, ModuleDto moduleDto)
         {
-            _context.Modules!.Add(@module);
+            var course = await _context.Courses!.FindAsync(courseId);
+
+            if (course == null)
+            {
+                return NotFound($"Course with ID {courseId} not found.");
+            }
+
+            var module = new Module
+            {
+                Name = moduleDto.Name,
+                Description = moduleDto.Description,
+                StartDate = moduleDto.StartDate,
+                EndDate = moduleDto.EndDate,
+                CourseId = courseId,
+            };
+
+            _context.Modules!.Add(module);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetModule", new { id = @module.Id }, @module);
+            moduleDto.Id = module.Id;
+
+            return CreatedAtAction(nameof(GetModule), new { courseId, id = module.Id }, moduleDto);
         }
 
-        // DELETE: api/Modules/5
+        // DELETE: api/courses/{courseId}/module/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteModule(int id)
+        public async Task<IActionResult> DeleteModule(int courseId, int id)
         {
-            var @module = await _context.Modules!.FindAsync(id);
-            if (@module == null)
+            var module = await _context.Modules!.FirstOrDefaultAsync(m =>
+                m.Id == id && m.CourseId == courseId
+            );
+
+            if (module == null)
             {
-                return NotFound();
+                return NotFound($"Module with ID {id} for Course ID {courseId} not found.");
             }
 
-            _context.Modules.Remove(@module);
+            _context.Modules!.Remove(module);
             await _context.SaveChangesAsync();
 
             return NoContent();

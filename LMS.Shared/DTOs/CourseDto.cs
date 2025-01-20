@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,4 +20,5 @@ public class CourseDto
 
     [Required(ErrorMessage = "Start Date is required")]
     public DateTime StartDate { get; set; }
+    public ICollection<Module> Modules { get; set; } = new List<Module>();
 }

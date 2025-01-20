@@ -1,0 +1,133 @@
+﻿@page "/addmodule/{courseId:int}"
+@rendermode InteractiveWebAssembly
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@attribute [Authorize]
+
+<h2>Add a New Module</h2>
+<EditForm Model="newModuleDto" method="post">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group row">
+        <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="name" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.Name" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="description" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.Description" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
+        <div class="col-sm-12 col-md-4">
+            <InputDate id="startDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.StartDate" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="endDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">End Date</label>
+        <div class="col-sm-12 col-md-4">
+            <InputDate id="endDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.EndDate" />
+        </div>
+    </div>
+    <div class="d-flex gap-2 mb-4">
+        <a href="/courses" class="btn btn-primary ">Back to Course</a>
+        <button type="submit" class="btn btn-success" @onclick="AddModuleAsync">Submit</button>
+    </div>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <div class="alert alert-success mt-2">@SuccessMessage</div>
+}
+
+<h3>Existing Modules</h3>
+@if (modules == null)
+{
+    <p>Loading modules...</p>
+}
+else if (modules.Count == 0)
+{
+    <p>No modules found for this course.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-4">
+        @foreach (var module in modules)
+        {
+            <div class="col">
+                <div class="card border-secondary">
+                    <div class="card-header">
+                        <h4 class="card-title fw-bold text-center">@module.Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> @module.Description</p>
+                        <p><strong>Start Date:</strong> @module.StartDate.ToShortDateString()</p>
+                        <p><strong>End Date:</strong> @module.EndDate.ToShortDateString()</p>
+                        <div class="d-flex justify-content-center">
+                            <a href="/addactivity/@module.Id" class="btn btn-primary">Add Activity</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    [Parameter]
+    public int courseId { get; set; }
+
+    private ModuleDto newModuleDto = new() { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) };
+    private List<ModuleDto>? modules;
+    private string? SuccessMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchModulesAsync();
+    }
+
+    private async Task AddModuleAsync()
+    {
+        var createdModule = await _apiService.PostAsync<ModuleDto, ModuleDto>($"api/courses/{courseId}/module", newModuleDto);
+
+        if (createdModule != null)
+        {
+            SuccessMessage = "Module created successfully!";
+            await FetchModulesAsync(); // Fetch the updated list of modules
+            newModuleDto = new ModuleDto { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) }; // Reset form
+        }
+        else
+        {
+            SuccessMessage = "Failed to create the module.";
+        }
+    }
+
+    private async Task FetchModulesAsync()
+    {
+        try
+        {
+            modules = (await _apiService.GetAsync<IEnumerable<ModuleDto>>($"api/courses/{courseId}/module"))?.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching modules: {ex.Message}");
+        }
+    }
+}

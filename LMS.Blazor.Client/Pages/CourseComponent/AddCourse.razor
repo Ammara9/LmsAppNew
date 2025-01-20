@@ -104,26 +104,3 @@
 
 
  
-@*
-@code {
-
-    [Inject]
-    private IApiService _apiService { get; set; } = default!;
-    [Inject]
-    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-
-    private List<CourseDto>? courses;
-    private CourseDto? courseDto;
-
-    private async Task CallAPIAsync()
-    {
-        courses = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
-    }
-
-    private async Task CreateCourseAsync()
-    {
-        var dto = new CourseDto { Id = 1, Name = "Created at blazor" };
-        courseDto = (await _apiService.PostAsync<CourseDto, CourseDto>("api/courses", dto));
-    }
-}
-*@

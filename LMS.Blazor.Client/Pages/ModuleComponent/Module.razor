@@ -1,7 +1,84 @@
-﻿@page "/module"
+﻿@page "/courses/{courseId:int}/module"
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
 
-<h3>Module</h3>
+@attribute [Authorize]
+
+<h1>Modules for Course @courseId</h1>
+
+<div style="display: flex; gap: 10px;">
+    <a href="/addmodule/@courseId" class="btn btn-success mx-2">Add Module</a>
+    <button class="btn btn-primary mb-6 d-block" @onclick="FetchModulesAsync">Refresh Modules</button>
+</div>
+
+@if (modules == null)
+{
+    <p>Loading modules...</p>
+}
+else if (modules.Count == 0)
+{
+    <p>No modules found for this course.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-4">
+        @foreach (var module in modules)
+        {
+            <div class="col">
+                <div class="card border-secondary">
+                    <div class="card-header">
+                        <h4 class="card-title fw-bold text-center">@module.Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> @module.Description</p>
+                        <p><strong>Start Date:</strong> @module.StartDate.ToShortDateString()</p>
+                        <p><strong>End Date:</strong> @module.EndDate.ToShortDateString()</p>
+                        <div class="d-flex justify-content-center">
+                            <a href="/addactivity/@module.Id" class="btn btn-primary">Add Activity</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Parameter]
+    public int courseId { get; set; }
 
+    private List<ModuleDto>? modules;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"Course ID: {courseId}");
+        await FetchModulesAsync();
+    }
+
+    private async Task FetchModulesAsync()
+    {
+        try
+        {
+            modules = (await _apiService.GetAsync<IEnumerable<ModuleDto>>($"api/courses/{courseId}/module"))?.ToList();
+            if (modules == null || !modules.Any())
+            {
+                Console.WriteLine("No modules found for this course.");
+            }
+            else
+            {
+                Console.WriteLine($"Fetched {modules.Count} modules.");
+            }
+            errorMessage = null; // Clear any previous error message
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error fetching modules: {ex.Message}";
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
 }

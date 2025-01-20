@@ -28,7 +28,7 @@ public class CourseController : ControllerBase
     [Authorize]
     public async Task<ActionResult> GetAllCourses()
     {
-        var courses = await _context.Courses.ToListAsync();
+        var courses = await _context.Courses!.ToListAsync();
 
         if (courses == null)
         {
@@ -40,7 +40,7 @@ public class CourseController : ControllerBase
             Id = p.Id,
             Name = p.Name,
             Description = p.Description,
-            StartDate = p.StartDate
+            StartDate = p.StartDate,
         });
 
         // Return all courses
@@ -48,7 +48,6 @@ public class CourseController : ControllerBase
     }
 
     [HttpPost]
-    
     public async Task<IActionResult> CreateCourses(CourseDto courseDto)
     {
         //var returnCourse = new CourseDto { Id = courseDto.Id, Name = courseDto.Name };
@@ -59,10 +58,11 @@ public class CourseController : ControllerBase
             return BadRequest("Course is null.");
         }
 
-        var newCourse = new Course {
+        var newCourse = new Course
+        {
             Name = courseDto.Name,
             Description = courseDto.Description,
-            StartDate = courseDto.StartDate
+            StartDate = courseDto.StartDate,
         };
         _context.Add(newCourse);
         await _context.SaveChangesAsync();
