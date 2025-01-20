@@ -12,6 +12,8 @@
 @using Microsoft.AspNetCore.Mvc
 @using Microsoft.AspNetCore.WebUtilities
 @using LMS.Blazor.Data
+@using Microsoft.AspNetCore.Authorization
+
 @* @using LMS.Infrastructure.Data *@
 
 @inject UserManager<ApplicationUser> UserManager
@@ -22,6 +24,8 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @* @inject LMS.Infrastructure.Data.LmsContext DbContext *@
+@attribute [Authorize]
+
 
 
 <PageTitle>Register</PageTitle>
