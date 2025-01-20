@@ -1,4 +1,5 @@
 ﻿
+using Domain.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
