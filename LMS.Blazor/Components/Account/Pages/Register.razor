@@ -100,11 +100,11 @@
 	[IgnoreAntiforgeryToken]
 	public async Task RegisterUser(EditContext editContext)
 	{
-		// if (!editContext.Validate())
-		// {
-           // Validation failed; handle accordingly
-		// 	return;
-		// }
+		if (!editContext.Validate())
+		{
+			// Validation failed; handle accordingly
+			return;
+		}
 
 		var user = CreateUser();
 		user.Role = Input.Role; // Assign the role
@@ -129,19 +129,15 @@
 		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
 			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
 
 		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
 
-		if (UserManager.Options.SignIn.RequireConfirmedAccount)
-		{
-			RedirectManager.RedirectTo(
-				"Account/RegisterConfirmation",
-				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
-		}
+		// Clear the form
+		Input = new InputModel();
+		identityErrors = null;
 
-		await SignInManager.SignInAsync(user, isPersistent: false);
-		RedirectManager.RedirectTo(ReturnUrl);
+		Logger.LogInformation("Registration successful. The form has been reset.");
 	}
 
 	private ApplicationUser CreateUser()
