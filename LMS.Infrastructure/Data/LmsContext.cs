@@ -11,4 +11,5 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
         : base(options) { }
 
     public DbSet<Course>? Courses { get; set; }
+    public DbSet<Module>? Modules { get; set; }
 }
