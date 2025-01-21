@@ -67,37 +67,49 @@ else
         @foreach (var module in modules)
         {
             <div class="list-group-item mb-3" style="padding: 5px;">
-                <!-- Module Header with Name and Add Activity Button -->
-                <div class="d-flex justify-content-between align-items-center p-2" style="background-color: lightblue; border-radius: 5px;">
-                    <h5 class="fw-bold">@module.Name</h5>
-                    <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
-                </div>
-                <!-- Subheader for Module Description and Dates -->
-                <div class="mt-2" style="padding: 5px;">
-                    <p class="mb-1"><strong>Description:</strong> @module.Description</p>
-                    <p class="mb-1"><strong>Start Date:</strong> @module.StartDate.ToShortDateString()</p>
-                    <p class="mb-1"><strong>End Date:</strong> @module.EndDate.ToShortDateString()</p>
+                <!-- Module Header with Name, Description, and Dates -->
+                <div class="p-2" style="background-color: lightblue; border-radius: 5px;">
+                    <!-- Name and Description on the same line -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold d-inline">@module.Name</h5> :
+                            <span class="ms-2">@module.Description</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
+                            <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
+                        </div>
+                    </div>
+                    <hr />
+                    <!-- Start and End Dates below -->
+                    <div class="mt-1">
+                        <p class="mb-1">Start Date: @module.StartDate.ToShortDateString()</p>
+                        <p class="mb-1">End Date: @module.EndDate.ToShortDateString()</p>
+
+                    </div>
                 </div>
                 <!-- Uncomment the following block if you want to include the Activities List -->
                 @* <div class="mt-3">
-                @foreach (var activity in module.Activities)
-                {
-                    <div>
-                        <p><strong>Activity Name:</strong> @activity.Name</p>
-                        <p><strong>Description:</strong> @activity.Description</p>
-                        <p><strong>Start Date:</strong> @activity.StartDate.ToShortDateString()</p>
-                        <p><strong>End Date:</strong> @activity.EndDate.ToShortDateString()</p>
-                        <hr />
-                    </div>
-                }
-                @if (!module.Activities.Any())
-                {
-                    <p class="text-muted">No activities added yet.</p>
-                }
-            </div> *@
+            @foreach (var activity in module.Activities)
+            {
+                <div>
+                    <p><strong>Activity Name:</strong> @activity.Name</p>
+                    <p><strong>Description:</strong> @activity.Description</p>
+                    <p><strong>Start Date:</strong> @activity.StartDate.ToShortDateString()</p>
+                    <p><strong>End Date:</strong> @activity.EndDate.ToShortDateString()</p>
+                    <hr />
+                </div>
+            }
+            @if (!module.Activities.Any())
+            {
+                <p class="text-muted">No activities added yet.</p>
+            }
+        </div> *@
             </div>
         }
     </div>
+
+
 
 }
 
