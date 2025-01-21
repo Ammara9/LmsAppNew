@@ -2,6 +2,7 @@
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs.CourseDTO
 @using LMS.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -10,42 +11,55 @@
 
 @attribute [Authorize]
 
-<h2>Add a New Module</h2>
-<EditForm Model="newModuleDto" method="post">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+@if (course != null)
+{
+    <h1 style="text-align: center; color: darkblue; font-style: italic;">Welcome to the @course.Name Course!</h1>
+}
+<div class="d-flex justify-content-center align-items-center" >
+    <div class="card" style="background-color: lightblue; border: 2px solid black; border-radius: 10px; width: 50%;">
+        <div class="card-body">
+            <h2 class="text-center">Add a New Module</h2>
 
-    <div class="form-group row">
-        <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
-        <div class="col-sm-12 col-md-4">
-            <InputText id="name" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.Name" />
-        </div>
-    </div>
+            <EditForm Model="newModuleDto" method="post">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-    <div class="form-group row">
-        <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
-        <div class="col-sm-12 col-md-4">
-            <InputText id="description" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.Description" />
-        </div>
-    </div>
+                <div class="form-group row mb-3">
+                    <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
+                    <div class="col-sm-12 col-md-8">
+                        <InputText id="name" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.Name" />
+                    </div>
+                </div>
 
-    <div class="form-group row">
-        <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
-        <div class="col-sm-12 col-md-4">
-            <InputDate id="startDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.StartDate" />
+                <div class="form-group row mb-3">
+                    <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
+                    <div class="col-sm-12 col-md-8">
+                        <InputText id="description" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.Description" />
+                    </div>
+                </div>
+
+                <div class="form-group row mb-3">
+                    <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
+                    <div class="col-sm-12 col-md-8">
+                        <InputDate id="startDate" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.StartDate" />
+                    </div>
+                </div>
+
+                <div class="form-group row mb-3">
+                    <label for="endDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">End Date</label>
+                    <div class="col-sm-12 col-md-8">
+                        <InputDate id="endDate" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.EndDate" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/courses" class="btn btn-primary">Back to Course</a>
+                    <button type="submit" class="btn btn-success" @onclick="AddModuleAsync">Submit</button>
+                </div>
+            </EditForm>
         </div>
     </div>
-    <div class="form-group row">
-        <label for="endDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">End Date</label>
-        <div class="col-sm-12 col-md-4">
-            <InputDate id="endDate" class="form-control form-control-lg bg-light mb-3" @bind-Value="newModuleDto.EndDate" />
-        </div>
-    </div>
-    <div class="d-flex gap-2 mb-4">
-        <a href="/courses" class="btn btn-primary ">Back to Course</a>
-        <button type="submit" class="btn btn-success" @onclick="AddModuleAsync">Submit</button>
-    </div>
-</EditForm>
+</div>
 
 @if (!string.IsNullOrEmpty(SuccessMessage))
 {
@@ -67,9 +81,7 @@ else
         @foreach (var module in modules)
         {
             <div class="list-group-item mb-3" style="padding: 5px;">
-                <!-- Module Header with Name, Description, and Dates -->
                 <div class="p-2" style="background-color: lightblue; border-radius: 5px;">
-                    <!-- Name and Description on the same line -->
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="fw-bold d-inline">@module.Name</h5> :
@@ -81,41 +93,20 @@ else
                         </div>
                     </div>
                     <hr />
-                    <!-- Start and End Dates below -->
                     <div class="mt-1">
                         <p class="mb-1">Start Date: @module.StartDate.ToShortDateString()</p>
                         <p class="mb-1">End Date: @module.EndDate.ToShortDateString()</p>
-
                     </div>
                 </div>
-                <!-- Uncomment the following block if you want to include the Activities List -->
-                @* <div class="mt-3">
-            @foreach (var activity in module.Activities)
-            {
-                <div>
-                    <p><strong>Activity Name:</strong> @activity.Name</p>
-                    <p><strong>Description:</strong> @activity.Description</p>
-                    <p><strong>Start Date:</strong> @activity.StartDate.ToShortDateString()</p>
-                    <p><strong>End Date:</strong> @activity.EndDate.ToShortDateString()</p>
-                    <hr />
-                </div>
-            }
-            @if (!module.Activities.Any())
-            {
-                <p class="text-muted">No activities added yet.</p>
-            }
-        </div> *@
             </div>
         }
     </div>
-
-
-
 }
 
 @code {
     [Inject]
     private IApiService _apiService { get; set; } = default!;
+
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
@@ -124,11 +115,13 @@ else
 
     private ModuleDto newModuleDto = new() { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) };
     private List<ModuleDto>? modules;
+    private CourseDto? course; // Add a property to hold the course details
     private string? SuccessMessage;
 
     protected override async Task OnInitializedAsync()
     {
         await FetchModulesAsync();
+        await FetchCourseAsync(); // Fetch the course details
     }
 
     private async Task AddModuleAsync()
@@ -156,6 +149,18 @@ else
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error fetching modules: {ex.Message}");
+        }
+    }
+
+    private async Task FetchCourseAsync()
+    {
+        try
+        {
+            course = await _apiService.GetAsync<CourseDto>($"api/courses/{courseId}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching course: {ex.Message}");
         }
     }
 }
