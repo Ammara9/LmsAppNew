@@ -19,7 +19,7 @@ namespace Domain.Models.Entities
         public int ModuleId { get; set; }
 
         //Navigation Properties
-        public ActivityType ActivityType { get; set; }
-        public Module Module { get; set; }
+        public ActivityType? ActivityType { get; set; }
+        public Module? Module { get; set; }
     }
 }

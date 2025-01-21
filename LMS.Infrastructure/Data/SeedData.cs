@@ -20,7 +20,7 @@ public static class SeedData
             var serviceProvider = scope.ServiceProvider;
             var db = serviceProvider.GetRequiredService<LmsContext>();
 
-            if (await db.Courses.AnyAsync())
+            if (!await db.Courses.AnyAsync())
             {
                 var courses = await GenerateCoursesWithModulesAsync(2, 3);
                 db.Courses.AddRange(courses);
