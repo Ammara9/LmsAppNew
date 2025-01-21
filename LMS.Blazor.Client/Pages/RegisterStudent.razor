@@ -13,13 +13,14 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         @if (students == null || !students.Any())
         {
             <tr>
-                <td colspan="2">No students found.</td>
+                <td colspan="3">No students found.</td>
             </tr>
         }
         else
@@ -29,6 +30,16 @@
                 <tr>
                     <td>@student.Name</td>
                     <td>@student.Email</td>
+                    <td>
+                        @if (IsStudentAssignedToCourse(student))
+                        {
+                            <button class="btn btn-danger btn-sm" @onclick="() => UnassignStudentFromCourse(student)">Unassign</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success btn-sm" @onclick="() => AssignStudentToCourse(student)">Assign</button>
+                        }
+                    </td>
                 </tr>
             }
         }
@@ -37,6 +48,7 @@
 
 @code {
     private List<ApplicationUser> students;
+    private List<ApplicationUser> assignedStudents = new();
 
     [Inject]
     private UserManager<ApplicationUser> UserManager { get; set; }
@@ -52,6 +64,35 @@
             {
                 students.Add(user);
             }
+        }
+
+        // Load assigned students (this can be retrieved from a database or service)
+        // For example:
+        //assignedStudents = await CourseService.GetAssignedStudents(courseId);
+    }
+
+    private bool IsStudentAssignedToCourse(ApplicationUser student)
+    {
+        return assignedStudents.Any(s => s.Id == student.Id);
+    }
+
+    private void AssignStudentToCourse(ApplicationUser student)
+    {
+        if (!IsStudentAssignedToCourse(student))
+        {
+            assignedStudents.Add(student);
+            // Optionally save this assignment to a database or API
+            //await CourseService.AssignStudentToCourse(courseId, student.Id);
+        }
+    }
+
+    private void UnassignStudentFromCourse(ApplicationUser student)
+    {
+        if (IsStudentAssignedToCourse(student))
+        {
+            assignedStudents.Remove(student);
+            // Optionally remove this assignment from a database or API
+           // await CourseService.UnassignStudentFromCourse(courseId, student.Id);
         }
     }
 }
