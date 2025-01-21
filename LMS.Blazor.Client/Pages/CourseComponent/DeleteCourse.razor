@@ -1,4 +1,5 @@
 ﻿@page "/deletecourse/{courseId:int}"
+@rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Pages
 @using LMS.Blazor.Client.Services
@@ -44,7 +45,7 @@
     </div>
     <div>
         <a href="/courses" class="btn btn-primary ">Back to Course</a>
-        <button class="btn btn-danger" @onclick="PromptDelete">Confirm Delete</button>
+        <button class="btn btn-danger" @* @onclick="PromptDelete" *@>Confirm Delete</button>
 
     </div>
 </EditForm>
@@ -63,13 +64,11 @@
     public int courseId { get; set; }
     //private ConfirmDeleteDialog? confirmDeleteDialog;
 
-    
-
     [Inject]
     private IApiService _apiService { get; set; } = default!;
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-    private CourseDto Item = new CourseDto();
+    CourseDto Item = new CourseDto();
     CourseUpdateDto courseUpdateDto = new CourseUpdateDto();
     private string? Message;
     private bool IsSuccess = true;

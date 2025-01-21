@@ -25,7 +25,7 @@ public class ProxyController : ControllerBase
     public async Task<IActionResult> Proxy(string endpoint)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Usermanager can be used here!
-
+        
         if (userId == null)
             return Unauthorized();
 
@@ -47,7 +47,7 @@ public class ProxyController : ControllerBase
         var targetUri = new Uri($"{client.BaseAddress}{endpoint}{Request.QueryString}");
         var method = new HttpMethod(Request.Method);
         var requestMessage = new HttpRequestMessage(method, targetUri);
-
+        Console.WriteLine($"Forwarding request to {targetUri}, Method: {Request.Method}");
         if (method != HttpMethod.Get && Request.ContentLength > 0)
         {
             requestMessage.Content = new StreamContent(Request.Body);
@@ -81,5 +81,6 @@ public class ProxyController : ControllerBase
         await stream.CopyToAsync(Response.Body);
 
         return new EmptyResult();
+        
     }
 }
