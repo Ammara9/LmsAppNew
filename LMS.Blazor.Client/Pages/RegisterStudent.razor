@@ -53,8 +53,9 @@
 @code {
     [Inject]
     private IApiService _apiService { get; set; } = default!;
-   
-    private ICourseService CourseService { get; set; }
+
+    private ICourseService CourseService { get; set; } = default!; // this line causes error
+
     [Parameter] public int courseId { get; set; }
     private List<ApplicationUserDto> students = new();
     private List<ApplicationUserDto> assignedStudents = new();
