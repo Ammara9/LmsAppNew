@@ -12,5 +12,5 @@ public class ApplicationUser : IdentityUser
     public string Name { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
 
-    public ICollection<Course> Enrollments { get; set; }
+    public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 }

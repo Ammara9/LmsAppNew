@@ -1,12 +1,14 @@
-﻿@page "/registerstudent"
-@using Microsoft.AspNetCore.Identity
+﻿@page "/registerstudent/{courseId:int}"
 @using Domain.Models.Entities
-@using Microsoft.AspNetCore.Authorization
+@using LMS.Blazor.Client.Services
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
 
-@attribute [Authorize]
+@inject ICourseService CourseService
+@inject UserManager<ApplicationUser> UserManager
 
-<h3>Registered Students</h3>
-<p>Below are the registered students.</p>
+<h3>Register Students to Course</h3>
+<p>Below are the students. You can assign or unassign them to this course.</p>
 
 <table class="table">
     <thead>
@@ -45,30 +47,15 @@
         }
     </tbody>
 </table>
-
 @code {
+    [Parameter] public int courseId { get; set; }
     private List<ApplicationUser> students;
     private List<ApplicationUser> assignedStudents = new();
 
-    [Inject]
-    private UserManager<ApplicationUser> UserManager { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
-        students = new List<ApplicationUser>();
-
-        foreach (var user in UserManager.Users.ToList())
-        {
-            var roles = await UserManager.GetRolesAsync(user);
-            if (roles.Contains("Student"))
-            {
-                students.Add(user);
-            }
-        }
-
-        // Load assigned students (this can be retrieved from a database or service)
-        // For example:
-        //assignedStudents = await CourseService.GetAssignedStudents(courseId);
+        students = await UserManager.Users.ToListAsync();
+        assignedStudents = await CourseService.GetAssignedStudents(courseId);
     }
 
     private bool IsStudentAssignedToCourse(ApplicationUser student)
@@ -76,23 +63,21 @@
         return assignedStudents.Any(s => s.Id == student.Id);
     }
 
-    private void AssignStudentToCourse(ApplicationUser student)
+    private async Task AssignStudentToCourse(ApplicationUser student)
     {
         if (!IsStudentAssignedToCourse(student))
         {
             assignedStudents.Add(student);
-            // Optionally save this assignment to a database or API
-            //await CourseService.AssignStudentToCourse(courseId, student.Id);
+            await CourseService.AssignStudentToCourse(courseId, student.Id);
         }
     }
 
-    private void UnassignStudentFromCourse(ApplicationUser student)
+    private async Task UnassignStudentFromCourse(ApplicationUser student)
     {
         if (IsStudentAssignedToCourse(student))
         {
             assignedStudents.Remove(student);
-            // Optionally remove this assignment from a database or API
-           // await CourseService.UnassignStudentFromCourse(courseId, student.Id);
+            await CourseService.UnassignStudentFromCourse(courseId, student.Id);
         }
     }
 }

@@ -6,6 +6,8 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 // register api service for calls originating from WASM
 builder.Services.AddScoped<IApiService, ClientApiService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+
 
 
 builder.Services.AddHttpClient("BffClient", cfg =>
