@@ -7,6 +7,7 @@ using AutoMapper;
 using Bogus.DataSets;
 using Domain.Models.Entities;
 using LMS.Infrastructure.Data;
+using LMS.Shared.DTOs;
 using LMS.Shared.DTOs.CourseDTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -126,4 +127,19 @@ public class CourseController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+    //[HttpGet("{courseId}/students")]
+    //public async Task<ActionResult<List<ApplicationUserDto>>> GetAssignedStudents(int courseId)
+    //{
+    //    var assignedStudents = await _context.Enrollments
+    //        .Where(e => e.CourseId == courseId)
+    //        .Select(e => new ApplicationUserDto
+    //        {
+    //            Id = e.ApplicationUser.Id,
+    //            Name = e.ApplicationUser.UserName,
+    //            Email = e.ApplicationUser.Email,
+    //        })
+    //        .ToListAsync();
+
+    //    return Ok(assignedStudents);
+    //}
 }

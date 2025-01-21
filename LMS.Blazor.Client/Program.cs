@@ -9,11 +9,11 @@ builder.Services.AddScoped<IApiService, ClientApiService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
 
-
 builder.Services.AddHttpClient("BffClient", cfg =>
 {
     cfg.BaseAddress = new Uri("https://localhost:7224");
 });
+
 
 
 builder.Services.AddSingleton<AuthenticationStateProvider,

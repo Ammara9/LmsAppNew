@@ -1,10 +1,11 @@
 ﻿@page "/registerstudent/{courseId:int}"
 @using Domain.Models.Entities
 @using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 
-@inject ICourseService CourseService
+@* @inject ICourseService CourseService   *@
 @inject UserManager<ApplicationUser> UserManager
 
 <h3>Register Students to Course</h3>
@@ -47,23 +48,53 @@
         }
     </tbody>
 </table>
+
 @code {
-    [Parameter] public int courseId { get; set; }
-    private List<ApplicationUser> students;
-    private List<ApplicationUser> assignedStudents = new();
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    private ICourseService CourseService;
+
+    [Parameter] 
+    public int courseId { get; set; }
+    private List<ApplicationUserDto> students;
+    private List<ApplicationUserDto> assignedStudents = new();
 
     protected override async Task OnInitializedAsync()
     {
-        students = await UserManager.Users.ToListAsync();
-        assignedStudents = await CourseService.GetAssignedStudents(courseId);
+        try
+        {
+            await CallAPIAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading courses: {ex.Message}");
+        }
     }
 
-    private bool IsStudentAssignedToCourse(ApplicationUser student)
+    private async Task CallAPIAsync()
+    {
+        try
+        {
+            students = await _apiService.GetAsync<List<ApplicationUserDto>>("api/users");
+            Console.WriteLine($"Students count: {students.Count}");
+
+            assignedStudents = await CourseService.GetAssignedStudents(courseId);
+            Console.WriteLine($"Assigned students count: {assignedStudents.Count}");
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching data: {ex.Message}");
+        }
+    }
+
+    private bool IsStudentAssignedToCourse(ApplicationUserDto student)
     {
         return assignedStudents.Any(s => s.Id == student.Id);
     }
 
-    private async Task AssignStudentToCourse(ApplicationUser student)
+    private async Task AssignStudentToCourse(ApplicationUserDto student)
     {
         if (!IsStudentAssignedToCourse(student))
         {
@@ -72,7 +103,7 @@
         }
     }
 
-    private async Task UnassignStudentFromCourse(ApplicationUser student)
+    private async Task UnassignStudentFromCourse(ApplicationUserDto student)
     {
         if (IsStudentAssignedToCourse(student))
         {
