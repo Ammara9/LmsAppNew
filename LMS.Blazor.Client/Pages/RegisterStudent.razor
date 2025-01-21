@@ -1,7 +1,57 @@
 ﻿@page "/registerstudent"
+@using Microsoft.AspNetCore.Identity
+@using Domain.Models.Entities
+@using Microsoft.AspNetCore.Authorization
 
-<h3>RegisterStudent</h3>
+@attribute [Authorize]
+
+<h3>Registered Students</h3>
+<p>Below are the registered students.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (students == null || !students.Any())
+        {
+            <tr>
+                <td colspan="2">No students found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.Name</td>
+                    <td>@student.Email</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
 
 @code {
+    private List<ApplicationUser> students;
 
+    [Inject]
+    private UserManager<ApplicationUser> UserManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        students = new List<ApplicationUser>();
+
+        foreach (var user in UserManager.Users.ToList())
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            if (roles.Contains("Student"))
+            {
+                students.Add(user);
+            }
+        }
+    }
 }
