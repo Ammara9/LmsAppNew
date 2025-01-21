@@ -17,7 +17,7 @@
 
 @if (courses == null)
 {
-    <p class="text-center">Refresh to get courses</p>
+    <p class="text-center">Loading...</p>
 }
 else
 {
@@ -50,11 +50,11 @@ else
 }
 
 
-<AuthorizeView Roles="Admin">
-    <Authorized>
-        <p>Hej auth user</p>
-    </Authorized>
-</AuthorizeView>
+@* <AuthorizeView Roles="Admin"> *@
+@*     <Authorized> *@
+@*         <p>Hej auth user</p> *@
+@*     </Authorized> *@
+@* </AuthorizeView> *@
 
 
 @code {
@@ -90,4 +90,3 @@ else
 
    
 }
-    
