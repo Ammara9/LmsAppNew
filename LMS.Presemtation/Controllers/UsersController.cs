@@ -17,7 +17,7 @@ namespace LMS.Presemtation.Controllers
     using System.Threading.Tasks;
 
     [ApiController]
-    [Route("api/users")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -36,7 +36,8 @@ namespace LMS.Presemtation.Controllers
                 {
                     Id = user.Id,
                     Name = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = user.Role
                 })
                 .ToListAsync();
 
