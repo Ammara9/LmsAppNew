@@ -2,7 +2,7 @@
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
-@using LMS.Shared.DTOs
+@using LMS.Shared.DTOs.CourseDTO
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components
@@ -47,9 +47,9 @@
     </Authorized>
 </AuthorizeView>
 
-@if (!string.IsNullOrEmpty(SuccessMessage))
+@if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-success mt-2">@SuccessMessage</div>
+    <div class="alert @(IsSuccess ? "alert-success" : "alert-danger") mt-2">@Message</div>
 }
 
 @code {
@@ -59,9 +59,9 @@
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-    private List<CourseDto>? courses;
-    private CourseDto newCourseDto = new() { StartDate = DateTime.Now };
-    private string? SuccessMessage;
+    private CourseCreateDto newCourseDto = new() { StartDate = DateTime.Now };
+    private string? Message;
+    private bool IsSuccess = true;
 
     /*private async Task CallAPIAsync()
        {
@@ -72,20 +72,28 @@
     {
 
         // Call PostApiAsync to send the new course data
-        var createdCourse = (await _apiService.PostAsync<CourseDto, CourseDto>("api/courses", newCourseDto));
+        var createdCourse = (await _apiService.PostAsync<CourseCreateDto, CourseDto>("api/courses", newCourseDto));
 
         if (createdCourse != null)
         {
             // Refresh the course list if the course was successfully created
             //await CallAPIAsync();
-            SuccessMessage = "Course created successfully!";
+            ShowMessage("Course created successfully!", true);
             StartDismissTimer();
         }
         else
         {
             // Handle the failure case, such as logging or showing an error message
             Console.WriteLine("Failed to add the course.");
+            ShowMessage("Failed to add the course. Please try again.", isSuccess: false);
         }
+    }
+
+    private void ShowMessage(string message, bool isSuccess)
+    {
+        Message = message;
+        IsSuccess = isSuccess;
+        StartDismissTimer();
     }
 
     private void StartDismissTimer()
@@ -94,13 +102,10 @@
         var timer = new System.Timers.Timer(5000);
         timer.Elapsed += (sender, args) =>
         {
-            SuccessMessage = string.Empty;
+            Message = string.Empty;
             timer.Stop();
             InvokeAsync(StateHasChanged); // Trigger UI update
         };
         timer.Start();
     }
 }
-
-
- 
