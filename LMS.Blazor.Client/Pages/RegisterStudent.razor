@@ -81,11 +81,7 @@
 		{
 			//students = await _apiService.GetAsync<List<ApplicationUserDto>>("api/users");
 			students = (await _apiService.GetAsync<IEnumerable<ApplicationUserDto>>("api/users"))?.ToList() ?? [];
-
 			assignedStudents = await CourseService.GetAssignedStudents(courseId);
-
-			//courses = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
-
 
 			StateHasChanged();
 		}
