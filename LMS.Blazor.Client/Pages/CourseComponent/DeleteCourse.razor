@@ -1,9 +1,183 @@
-﻿@page "/deletecourse"
+﻿@page "/deletecourse/{courseId:int}"
 
 @using LMS.Blazor.Client.Pages
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs.CourseDTO
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
+@attribute [Authorize]
 
 <h3>DeleteCourse</h3>
+
+<EditForm Model="Item" method="delete" OnValidSubmit="PromptDelete">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="container">
+        <div class="row mb-2">
+            <div class="col-sm-2">
+                <label class="col-form-label">Name:</label>
+            </div>
+            <div class="col-sm-10">
+                <span>@Item.Name</span>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-2">
+                <label class="col-form-label">Description:</label>
+            </div>
+            <div class="col-sm-10">
+                <span>@Item.Description</span>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-2">
+                <label class="col-form-label">Start Date:</label>
+            </div>
+            <div class="col-sm-10">
+                <span>@Item.StartDate.ToString("MM/dd/yyyy")</span>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a href="/courses" class="btn btn-primary ">Back to Course</a>
+        <button class="btn btn-danger" @onclick="PromptDelete">Confirm Delete</button>
+
+    </div>
+</EditForm>
+
+@*<ConfirmDeleteDialog @ref="confirmDeleteDialog" OnConfirmation="OnDeleteConfirmed" />*@
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>Hej auth user</p>
+    </Authorized>
+</AuthorizeView>
+
 @code {
 
+    [Parameter]
+    public int courseId { get; set; }
+    //private ConfirmDeleteDialog? confirmDeleteDialog;
+
+    
+
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+    private CourseDto Item = new CourseDto();
+    CourseUpdateDto courseUpdateDto = new CourseUpdateDto();
+    private string? Message;
+    private bool IsSuccess = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await OnLoadCourseAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading courses: {ex.Message}");
+        }
+    }
+
+    private async Task OnLoadCourseAsync()
+    {
+        Item.Id = courseId;
+        var deleteCourseDto = (await _apiService.GetAsyncById<CourseDto, CourseUpdateDto>($"api/courses/{courseId}", Item));
+        if (deleteCourseDto == null)
+        {
+            throw new Exception("Course not found");
+        }
+
+        UpdateLocalCourseData(deleteCourseDto);
+    }
+
+    private void UpdateLocalCourseData(CourseUpdateDto courseDto)
+    {
+        Item.Id = courseDto.CourseId;
+        Item.Name = courseDto.Name;
+        Item.Description = courseDto.Description;
+        Item.StartDate = courseDto.StartDate;
+    }
+
+    private async Task PromptDelete()
+    {
+        //confirmDeleteDialog.Show();
+        bool isConfirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this course?");
+        if (isConfirmed)
+        {
+            await DeleteCourseAsync(Item);
+        }
+        else
+        {
+            Console.WriteLine("Deletion canceled.");
+        }
+    }
+
+    /*private async Task OnDeleteConfirmed(bool confirmed)
+    {
+        if (confirmed)
+        {
+            // Perform the delete operation.For example, call a service to delete the item from the database
+            await DeleteCourseAsync(Item);
+        }
+    }*/
+
+    private async Task DeleteCourseAsync(CourseDto deleteCourse)
+    {
+        if (deleteCourse is null)
+        {
+            throw new ArgumentNullException(nameof(deleteCourse));
+        }
+
+        try
+        {
+            deleteCourse.Id = courseId;
+            var response = (await _apiService.DeleteAsync<CourseDto, HttpResponseMessage>($"api/courses/delete/{courseId}", deleteCourse));
+            if (response.IsSuccessStatusCode)
+            {
+                ShowMessage("Course deleted successfully", true);
+                StartDismissTimer();
+                Navigation.NavigateTo("/courses");
+            }
+            else
+            {
+                ShowMessage("Failed to delete the course. Please try again.", isSuccess: false);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting course: {ex.Message}");
+        }
+    }
+
+    private void ShowMessage(string message, bool isSuccess)
+    {
+        Message = message;
+        IsSuccess = isSuccess;
+        StartDismissTimer();
+    }
+
+    private void StartDismissTimer()
+    {
+        // Dismiss the alert after 5 seconds (5000 ms)
+        var timer = new System.Timers.Timer(5000);
+        timer.Elapsed += (sender, args) =>
+        {
+            Message = string.Empty;
+            timer.Stop();
+            timer.Dispose();
+            InvokeAsync(StateHasChanged); // Trigger UI update
+        };
+        timer.Start();
+    }
 }
+
+
+
