@@ -72,8 +72,31 @@ namespace LMS.API
                 return BadRequest("No file uploaded.");
             }
 
+            // Check if the WebRootPath is valid
+            if (string.IsNullOrEmpty(_environment.WebRootPath))
+            {
+                // Fallback path if WebRootPath is not configured
+                _environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            }
+
+            // Check if the file name is valid
+            if (string.IsNullOrEmpty(file.FileName))
+            {
+                return BadRequest("Invalid file name.");
+            }
+
+            // Build the file path and ensure all components are valid
+            var uploadsDirectory = "uploads";
+            var filePath = Path.Combine(_environment.WebRootPath, uploadsDirectory, file.FileName);
+
+            // Ensure the uploads directory exists, if not, create it
+            var uploadsPath = Path.Combine(_environment.WebRootPath, uploadsDirectory);
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
             // Save the file to the server
-            var filePath = Path.Combine(_environment.WebRootPath, "uploads", file.FileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -84,7 +107,7 @@ namespace LMS.API
             {
                 Name = name,
                 Description = description,
-                FilePath = $"/uploads/{file.FileName}",
+                FilePath = $"/{uploadsDirectory}/{file.FileName}",
                 UploadedAt = DateTime.UtcNow,
                 ModuleId = moduleId,
             };
