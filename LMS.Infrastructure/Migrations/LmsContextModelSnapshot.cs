@@ -194,6 +194,48 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("Domain.Models.Entities.Document", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ActivityId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UploadedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UploadedById");
+
+                    b.ToTable("Documents");
+                });
+
             modelBuilder.Entity("Domain.Models.Entities.Module", b =>
                 {
                     b.Property<int>("Id")
@@ -223,7 +265,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Module");
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -391,13 +433,24 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("ActivityType");
                 });
 
+            modelBuilder.Entity("Domain.Models.Entities.Document", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.ApplicationUser", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById");
+
+                    b.Navigation("UploadedBy");
+                });
+
             modelBuilder.Entity("Domain.Models.Entities.Module", b =>
                 {
-                    b.HasOne("Domain.Models.Entities.Course", null)
+                    b.HasOne("Domain.Models.Entities.Course", "Course")
                         .WithMany("Modules")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
