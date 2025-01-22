@@ -1,0 +1,72 @@
+﻿@page "/documentlist/{courseId:int}/{moduleId:int}"
+@rendermode InteractiveWebAssembly
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+
+@attribute [Authorize]
+
+<h3>Existing Documents</h3>
+@if (documents == null)
+{
+    <p>Loading documents...</p>
+}
+else if (documents.Count == 0)
+{
+    <p>No documents found for this module.</p>
+}
+else
+{
+    <div class="list-group mt-4">
+        @foreach (var document in documents)
+        {
+            <div class="list-group-item mb-3" style="padding: 5px;">
+                <div class="p-2" style="background-color: lightblue; border-radius: 5px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold d-inline">@document.Name</h5> :
+                            <span class="ms-2">@document.Description</span>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="mt-1">
+                        <p class="mb-1">Uploaded At: @document.UploadedAt.ToShortDateString()</p>
+                        <p><strong>File:</strong> <a href="@document.FilePath" target="_blank">Download</a></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+
+    [Parameter]
+    public int courseId { get; set; }
+
+    [Parameter]
+    public int moduleId { get; set; }
+
+    private List<DocumentDto>? documents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchDocumentsAsync();
+    }
+
+    private async Task FetchDocumentsAsync()
+    {
+        try
+        {
+            documents = (await _apiService.GetAsync<IEnumerable<DocumentDto>>($"api/courses/{courseId}/module/{moduleId}/document"))?.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching documents: {ex.Message}");
+        }
+    }
+}

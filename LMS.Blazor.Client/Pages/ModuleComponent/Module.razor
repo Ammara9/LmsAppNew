@@ -8,8 +8,11 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using LMS.Blazor.Client.Pages.DocumentComponent
 
 @attribute [Authorize]
+
+<DocumentList/>
 
 @if (course != null)
 {
@@ -90,6 +93,7 @@ else
                         <div class="d-flex gap-2">
                             <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
                             <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
+                            <a href="/documentlist/@courseId/@module.Id" class="btn btn-primary">Document List</a>
                         </div>
                     </div>
                     <hr />

@@ -99,7 +99,6 @@ else
     {
         await FetchDocumentsAsync();
     }
-
     private async Task AddDocumentAsync()
     {
         if (uploadedFile != null)
@@ -107,20 +106,53 @@ else
             var filePath = await UploadFileAsync(uploadedFile);
             newDocumentDto.FilePath = filePath;
 
-            var createdDocument = await _apiService.PostAsync<DocumentDto, DocumentDto>($"api/courses/{courseId}/module/{moduleId}/document", newDocumentDto);
+            // Create the multipart form data content
+            var formContent = new MultipartFormDataContent();
 
-            if (createdDocument != null)
+            // Add the file content
+            var fileContent = new StreamContent(uploadedFile.OpenReadStream());
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(uploadedFile.ContentType);
+            formContent.Add(fileContent, "file", uploadedFile.Name);
+
+            // Add other form data (name, description, etc.)
+            formContent.Add(new StringContent(newDocumentDto.Name), "name");
+            formContent.Add(new StringContent(newDocumentDto.Description), "description");
+
+            try
             {
-                SuccessMessage = "Document uploaded successfully!";
-                await FetchDocumentsAsync(); // Fetch the updated list of documents
-                newDocumentDto = new DocumentDto(); // Reset form
+                // Use the PostMultipartFormDataAsync method from IApiService
+                var response = await _apiService.PostMultipartFormDataAsync(
+                    $"api/courses/{courseId}/module/{moduleId}/document",
+                    formContent
+                );
+
+                if (response.IsSuccessStatusCode)
+                {
+                    SuccessMessage = "Document uploaded successfully!";
+                    await FetchDocumentsAsync(); // Fetch the updated list of documents
+                    newDocumentDto = new DocumentDto(); // Reset form
+                }
+                else
+                {
+                    // Log or display the status code if not successful
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    SuccessMessage = $"Failed to upload the document. Error: {response.StatusCode}, {errorMessage}";
+                    Console.Error.WriteLine($"Error uploading document: {response.StatusCode}, {errorMessage}");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                SuccessMessage = "Failed to upload the document.";
+                // Log the exception and show a general error message
+                SuccessMessage = $"Error: {ex.Message}";
+                Console.Error.WriteLine($"Exception during document upload: {ex.Message}");
             }
         }
+        else
+        {
+            SuccessMessage = "No file selected.";
+        }
     }
+
 
     private async Task FetchDocumentsAsync()
     {
