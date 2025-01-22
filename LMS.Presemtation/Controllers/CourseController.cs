@@ -49,7 +49,7 @@ public class CourseController : ControllerBase
     }
 
     [HttpGet("{id}")] // GET: api/courses/5 - GetCourse by id
-    [Authorize]
+    
     public async Task<ActionResult> GetCourseByID(int id)
     {
         var course = await _context.Courses.Where(p => p.Id == id).FirstOrDefaultAsync();
@@ -126,4 +126,19 @@ public class CourseController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
+    [HttpDelete("delete/{id}")]
+    
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var deleteCourse = await _context.Courses.FindAsync(id);
+        if (deleteCourse != null)
+        {
+            _context.Courses.Remove(deleteCourse);
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(deleteCourse);
+    }
+   
 }

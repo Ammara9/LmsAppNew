@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LMS.Shared.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace LMS.Shared.DTOs.CourseDTO
         public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Start Date is required")]
+        [FutureDateAttribute(ErrorMessage = "Start Date must be a future date")]
         public DateTime StartDate { get; set; }
     }
 }
