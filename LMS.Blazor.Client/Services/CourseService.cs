@@ -1,6 +1,8 @@
 ﻿using LMS.Blazor.Client.Services;
 using LMS.Shared.DTOs;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text;
 
 public class CourseService : ICourseService
 {
@@ -13,63 +15,33 @@ public class CourseService : ICourseService
 
     public async Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId)
     {
-        try
+        var response = await _httpClient.GetAsync($"api/courseenrollment/{courseId}/students");
+        if (response.IsSuccessStatusCode)
         {
-            // Using the updated endpoint for course enrollments
-            var response = await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"api/courseenrollment/{courseId}/students");
-
-            if (response == null)
-            {
-                throw new Exception("No students found or error occurred.");
-            }
-
-            return response;
+            return await response.Content.ReadFromJsonAsync<List<ApplicationUserDto>>();
         }
-        catch (Exception ex)
-        {
-            // Log the error here or show a user-friendly message
-            Console.WriteLine($"Error: {ex.Message}");
-            throw;
-        }
+        return new List<ApplicationUserDto>();
     }
 
     public async Task AssignStudentToCourse(int courseId, string studentId)
     {
-        try
-        {
-            var assignStudentDto = new { StudentId = studentId };
-            var response = await _httpClient.PostAsJsonAsync($"api/courseenrollment/{courseId}/assign-student", assignStudentDto);
+        var content = new StringContent(JsonSerializer.Serialize(new { StudentId = studentId }), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync($"api/courseenrollment/{courseId}/assign-student", content);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception("Failed to assign student to course.");
-            }
-        }
-        catch (Exception ex)
+        if (!response.IsSuccessStatusCode)
         {
-            // Handle errors (log or show to user)
-            Console.WriteLine($"Error: {ex.Message}");
-            throw;
+            throw new Exception("Failed to assign student to course.");
         }
     }
 
     public async Task UnassignStudentFromCourse(int courseId, string studentId)
     {
-        try
-        {
-            var assignStudentDto = new { StudentId = studentId };
-            var response = await _httpClient.PostAsJsonAsync($"api/courseenrollment/{courseId}/unassign-student", assignStudentDto);
+        var content = new StringContent(JsonSerializer.Serialize(new { StudentId = studentId }), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync($"api/courseenrollment/{courseId}/unassign-student", content);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception("Failed to unassign student from course.");
-            }
-        }
-        catch (Exception ex)
+        if (!response.IsSuccessStatusCode)
         {
-            // Handle errors (log or show to user)
-            Console.WriteLine($"Error: {ex.Message}");
-            throw;
+            throw new Exception("Failed to unassign student from course.");
         }
     }
 }
