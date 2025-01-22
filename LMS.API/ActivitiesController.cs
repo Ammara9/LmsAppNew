@@ -10,7 +10,7 @@ using LMS.Infrastructure.Data;
 
 namespace LMS.API
 {
-    [Route("api/[controller]")]
+    [Route("api/modules/{moduleId}/activity")]
     [ApiController]
     public class ActivitiesController : ControllerBase
     {
@@ -21,14 +21,14 @@ namespace LMS.API
             _context = context;
         }
 
-        // GET: api/Activities
+        // GET: api/modules/{moduleId}/Activities
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
         {
             return await _context.Activities.ToListAsync();
         }
 
-        // GET: api/Activities/5
+        // GET: api/modules/{moduleId}/Activities/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Activity>> GetActivity(int id)
         {
@@ -42,7 +42,7 @@ namespace LMS.API
             return activity;
         }
 
-        // PUT: api/Activities/5
+        // PUT: api/modules/{moduleId}/Activities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutActivity(int id, Activity activity)
@@ -73,7 +73,7 @@ namespace LMS.API
             return NoContent();
         }
 
-        // POST: api/Activities
+        // POST: api/modules/{moduleId}/Activities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Activity>> PostActivity(Activity activity)
@@ -84,7 +84,7 @@ namespace LMS.API
             return CreatedAtAction("GetActivity", new { id = activity.Id }, activity);
         }
 
-        // DELETE: api/Activities/5
+        // DELETE: api/modules/{moduleId}/Activities/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteActivity(int id)
         {
