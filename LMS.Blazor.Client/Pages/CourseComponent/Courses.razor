@@ -35,7 +35,7 @@ else
 
                         <div class="d-flex justify-content-center mb-3">
                             <button class="btn btn-info mx-2" @onclick="() => EditCourse(item.Id)">Edit Course</button>
-                            <a href="/deletecourse" class="btn btn-danger mx-2" @* @onclick="() => DeleteCourse(item.Id) *@">Delete Course</a>
+                            <a href="/deletecourse" class="btn btn-danger mx-2"  @onclick="() => DeleteCourse(item.Id) ">Delete Course</a>
                         </div>
                         <div class="d-flex justify-content-center">
                             <a href="/registerstudent" class="btn btn-success mx-2">Add Student</a>
@@ -63,9 +63,9 @@ else
     private IApiService _apiService { get; set; } = default!;
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-   
+
     private List<CourseDto>? courses;
-    
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -88,5 +88,10 @@ else
         Navigation.NavigateTo($"/editcourse/{courseId}");
     }
 
-   
+    private void DeleteCourse(int courseId)
+    {
+        // Navigate to the Delete Course component with the courseId parameter
+        Navigation.NavigateTo($"/deletecourse/{courseId}");
+    }
+
 }
