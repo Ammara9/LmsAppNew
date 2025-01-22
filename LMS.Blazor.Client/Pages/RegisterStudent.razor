@@ -13,126 +13,126 @@
 <p>Below are the students. You can assign or unassign them to this course.</p>
 
 <table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (students == null || !students.Any())
-        {
-            <tr>
-                <td colspan="3">No students found.</td>
-            </tr>
-        }
-        else
-        {
-            @foreach (var student in students)
-            {
-                <tr>
-                    <td>@student.Name</td>
-                    <td>@student.Email</td>
-                    <td>
-                        @if (IsStudentAssignedToCourse(student))
-                        {
-                            <button class="btn btn-danger btn-sm" @onclick="() => UnassignStudentFromCourse(student)">Unassign</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-success btn-sm" @onclick="() => AssignStudentToCourse(student)">Assign</button>
-                        }
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (students == null || !students.Any())
+		{
+			<tr>
+				<td colspan="3">No students found.</td>
+			</tr>
+		}
+		else
+		{
+			@foreach (var student in students)
+			{
+				<tr>
+					<td>@student.Name</td>
+					<td>@student.Email</td>
+					<td>
+						@if (IsStudentAssignedToCourse(student))
+						{
+							<button class="btn btn-danger btn-sm" @onclick="() => UnassignStudentFromCourse(student)">Unassign</button>
+						}
+						else
+						{
+							<button class="btn btn-success btn-sm" @onclick="() => AssignStudentToCourse(student)">Assign</button>
+						}
+					</td>
+				</tr>
+			}
+		}
+	</tbody>
 </table>
 
 @code {
-    [Inject]
-    private IApiService _apiService { get; set; } = default!;
-    [Inject]
-    private ICourseService CourseService { get; set; } = default!;
+	[Inject]
+	private IApiService _apiService { get; set; } = default!;
+	[Inject]
+	private ICourseService CourseService { get; set; } = default!;
 
-    [Parameter] public int courseId { get; set; }
-    private List<ApplicationUserDto> students = new();
-    private List<ApplicationUserDto> assignedStudents = new();
+	[Parameter] public int courseId { get; set; }
+	private List<ApplicationUserDto> students = new();
+	private List<ApplicationUserDto> assignedStudents = new();
 
-    // Fetch all students and check who is already assigned to the course
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            await FetchAllStudentsAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error loading students: {ex.Message}");
-        }
-    }
+	// Fetch all students and check who is already assigned to the course
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await FetchAllStudentsAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error loading students: {ex.Message}");
+		}
+	}
 
-    // Fetch all students and the students assigned to this course
-    private async Task FetchAllStudentsAsync()
-    {
-        try
-        {
-            // Fetch all users (students) and filter by role "Student"
-            students = (await _apiService.GetAsync<IEnumerable<ApplicationUserDto>>("api/users"))?
-                .Where(user => user.Role.Contains("Student"))  // Only include users with the "Student" role
-                .ToList() ?? new List<ApplicationUserDto>();
+	// Fetch all students and the students assigned to this course
+	private async Task FetchAllStudentsAsync()
+	{
+		try
+		{
+			// Fetch all users (students) and filter by role "Student"
+			students = (await _apiService.GetAsync<IEnumerable<ApplicationUserDto>>("api/users"))?
+						.Where(user => user.Role.Contains("Student"))
+						.ToList() ?? new List<ApplicationUserDto>();
 
-            // Fetch the list of students assigned to this course
-            assignedStudents = await CourseService.GetAssignedStudents(courseId);
+			// Fetch the list of students assigned to this course
+			assignedStudents = await CourseService.GetAssignedStudents(courseId);
 
-            // Update state to reflect the changes
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error fetching data: {ex.Message}");
-        }
-    }
+			// Update state to reflect the changes
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error fetching data: {ex.Message}");
+		}
+	}
 
-    // Check if the student is already assigned to this course
-    private bool IsStudentAssignedToCourse(ApplicationUserDto student)
-    {
-        return assignedStudents.Any(s => s.Id == student.Id);
-    }
+	// Check if the student is already assigned to this course
+	private bool IsStudentAssignedToCourse(ApplicationUserDto student)
+	{
+		return assignedStudents.Any(s => s.Id == student.Id);
+	}
 
-    // Assign student to the course
-    private async Task AssignStudentToCourse(ApplicationUserDto student)
-    {
-        try
-        {
-            if (!IsStudentAssignedToCourse(student))
-            {
-                assignedStudents.Add(student);
+	private async Task AssignStudentToCourse(ApplicationUserDto student)
+	{
+		try
+		{
+			if (!IsStudentAssignedToCourse(student))
+			{
+				await CourseService.AssignStudentToCourse(courseId, student.Id);
+				assignedStudents.Add(student); // Only update after a successful API call
+				StateHasChanged(); // Trigger a UI update
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error assigning student: {ex.Message}");
+			// Optionally show a message to the user
+		}
+	}
 
-                await CourseService.AssignStudentToCourse(courseId, student.Id);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error assigning student: {ex.Message}");
-        }
-    }
+	private async Task UnassignStudentFromCourse(ApplicationUserDto student)
+	{
+		try
+		{
+			if (IsStudentAssignedToCourse(student))
+			{
+				assignedStudents.Remove(student);
 
-    private async Task UnassignStudentFromCourse(ApplicationUserDto student)
-    {
-        try
-        {
-            if (IsStudentAssignedToCourse(student))
-            {
-                assignedStudents.Remove(student);
-
-                await CourseService.UnassignStudentFromCourse(courseId, student.Id);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error unassigning student: {ex.Message}");
-        }
-    }
+				await CourseService.UnassignStudentFromCourse(courseId, student.Id);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error unassigning student: {ex.Message}");
+		}
+	}
 }

@@ -42,6 +42,7 @@ public class CourseEnrollmentController : ControllerBase
     [HttpPost("{courseId}/assign-student")]
     public async Task<IActionResult> AssignStudentToCourse(int courseId, [FromBody] AssignStudentDto assignStudentDto)
     {
+        // Validate course and student existence
         var course = await _context.Courses.FindAsync(courseId);
         var student = await _context.Users.FindAsync(assignStudentDto.StudentId);
 
@@ -50,6 +51,16 @@ public class CourseEnrollmentController : ControllerBase
             return NotFound("Course or Student not found.");
         }
 
+        // Check if the student is already enrolled in the course
+        var existingEnrollment = await _context.Enrollments
+            .FirstOrDefaultAsync(e => e.CourseId == courseId && e.StudentId == assignStudentDto.StudentId);
+
+        if (existingEnrollment != null)
+        {
+            return Conflict("Student is already assigned to this course.");
+        }
+
+        // Create new enrollment
         var enrollment = new Enrollment
         {
             CourseId = courseId,
@@ -57,7 +68,7 @@ public class CourseEnrollmentController : ControllerBase
         };
 
         _context.Enrollments.Add(enrollment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Save changes here
 
         return NoContent();
     }
@@ -74,9 +85,11 @@ public class CourseEnrollmentController : ControllerBase
             return NotFound("The student is not assigned to this course.");
         }
 
+        // Remove the enrollment
         _context.Enrollments.Remove(enrollment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Save changes here
 
         return NoContent();
     }
+
 }
