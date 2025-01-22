@@ -15,16 +15,20 @@ namespace LMS.Presemtation.Controllers
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using LMS.Infrastructure.Data;
 
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LmsContext _context;
+
+        public UsersController(UserManager<ApplicationUser> userManager, LmsContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
         // Get all users as DTOs

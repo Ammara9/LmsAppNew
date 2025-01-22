@@ -13,16 +13,19 @@ public class CourseService : ICourseService
 
     public async Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId)
     {
-        return await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"api/courses/{courseId}/students");
+        // Using the same base URI for the API call
+        return await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"courses/{courseId}/students");
     }
 
     public async Task AssignStudentToCourse(int courseId, string studentId)
     {
-        await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/assign-student", new { StudentId = studentId });
+        // Using the same base URI for the API call
+        await _httpClient.PostAsJsonAsync($"courses/{courseId}/assign-student", new { StudentId = studentId });
     }
 
     public async Task UnassignStudentFromCourse(int courseId, string studentId)
     {
-        await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/unassign-student", new { StudentId = studentId });
+        // Using the same base URI for the API call
+        await _httpClient.PostAsJsonAsync($"courses/{courseId}/unassign-student", new { StudentId = studentId });
     }
 }
