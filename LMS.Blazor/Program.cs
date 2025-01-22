@@ -29,6 +29,7 @@ builder.Services.AddScoped<AuthenticationStateProvider,
     PersistingRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddScoped<IApiService, ClientApiService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddAuthentication(options =>
 {

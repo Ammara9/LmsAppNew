@@ -35,7 +35,7 @@ namespace LMS.Presemtation.Controllers
                 .Select(user => new ApplicationUserDto
                 {
                     Id = user.Id,
-                    Name = user.UserName,
+                    Name = user.Name,
                     Email = user.Email,
                     Role = user.Role
                 })
