@@ -125,9 +125,15 @@
 		{
 			if (IsStudentAssignedToCourse(student))
 			{
-				assignedStudents.Remove(student);
+				// Create the DTO object for the API call
+				var dto = new AssignStudentDto { StudentId = student.Id };
 
-				await CourseService.UnassignStudentFromCourse(courseId, student.Id);
+				// Call the API and update the state after success
+				await CourseService.UnassignStudentFromCourse(courseId, dto);
+
+				// Update the local list only after a successful call
+				assignedStudents.Remove(student);
+				StateHasChanged();
 			}
 		}
 		catch (Exception ex)

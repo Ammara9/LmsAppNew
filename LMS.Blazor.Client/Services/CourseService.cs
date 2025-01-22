@@ -3,6 +3,7 @@ using LMS.Shared.DTOs;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text;
+using LMS.Shared.DTOs.CourseDTO;
 
 public class CourseService : ICourseService
 {
@@ -10,38 +11,26 @@ public class CourseService : ICourseService
 
     public CourseService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
-    }
-
-    public async Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId)
-    {
-        var response = await _httpClient.GetAsync($"api/courseenrollment/{courseId}/students");
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<List<ApplicationUserDto>>();
-        }
-        return new List<ApplicationUserDto>();
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
     public async Task AssignStudentToCourse(int courseId, string studentId)
     {
-        var content = new StringContent(JsonSerializer.Serialize(new { StudentId = studentId }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync($"api/courseenrollment/{courseId}/assign-student", content);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception("Failed to assign student to course.");
-        }
+        var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/assign-student", new { StudentId = studentId });
+        response.EnsureSuccessStatusCode(); // Throws an exception if not successful
     }
 
-    public async Task UnassignStudentFromCourse(int courseId, string studentId)
+    public async Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId)
     {
-        var content = new StringContent(JsonSerializer.Serialize(new { StudentId = studentId }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync($"api/courseenrollment/{courseId}/unassign-student", content);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception("Failed to unassign student from course.");
-        }
+        return await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"api/courses/{courseId}/students");
     }
+
+    public async Task UnassignStudentFromCourse(int courseId, AssignStudentDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/unassign-student", dto);
+        response.EnsureSuccessStatusCode();
+    }
+
+
+
 }
