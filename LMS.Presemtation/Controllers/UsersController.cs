@@ -45,10 +45,10 @@ namespace LMS.Presemtation.Controllers
             {
                 // Dummy Data for Testing
                 users = new List<ApplicationUserDto>
-        {
-            new ApplicationUserDto { Id = "1", Name = "Test User 1", Email = "test1@example.com" },
-            new ApplicationUserDto { Id = "2", Name = "Test User 2", Email = "test2@example.com" }
-        };
+                {
+                    new ApplicationUserDto { Id = "1", Name = "Test User 1", Email = "test1@example.com" },
+                    new ApplicationUserDto { Id = "2", Name = "Test User 2", Email = "test2@example.com" }
+                };
             }
 
             return Ok(users);

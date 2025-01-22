@@ -53,7 +53,7 @@
 @code {
     [Inject]
     private IApiService _apiService { get; set; } = default!;
-
+    [Inject]
     private ICourseService CourseService { get; set; } = default!; // this line causes error
 
     [Parameter] public int courseId { get; set; }
