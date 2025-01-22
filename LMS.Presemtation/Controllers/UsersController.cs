@@ -1,27 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using LMS.Shared.DTOs;
+using Domain.Models.Entities;
+using LMS.Infrastructure.Data;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Presemtation.Controllers
+namespace LMS.Presentation.Controllers
 {
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using LMS.Shared.DTOs;
-    using Domain.Models.Entities;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using LMS.Infrastructure.Data;
-
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly LmsContext _context;
 
@@ -58,5 +51,4 @@ namespace LMS.Presemtation.Controllers
             return Ok(users);
         }
     }
-
 }

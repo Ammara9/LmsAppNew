@@ -107,6 +107,14 @@
         if (!IsStudentAssignedToCourse(student))
         {
             assignedStudents.Add(student);
+
+            // Create the DTO to send to the API
+            var assignStudentDto = new AssignStudentDto
+                {
+                    StudentId = student.Id
+                };
+
+            // Call the API to assign the student to the course
             await CourseService.AssignStudentToCourse(courseId, student.Id);
         }
     }
@@ -117,6 +125,14 @@
         if (IsStudentAssignedToCourse(student))
         {
             assignedStudents.Remove(student);
+
+            // Create the DTO to send to the API
+            var assignStudentDto = new AssignStudentDto
+                {
+                    StudentId = student.Id
+                };
+
+            // Call the API to unassign the student from the course
             await CourseService.UnassignStudentFromCourse(courseId, student.Id);
         }
     }
