@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Entities
+namespace LMS.Shared.DTOs
 {
-    public class Module
+    public class ModuleDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public ICollection<Activity> Activities { get; set; } = new List<Activity>();
-        public int CourseId { get; set; } // Foreign Key
-        public Course? Course { get; set; } // Navigation property
+        public int CourseId { get; set; } //Foreign key
+
+        //public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     }
 }
