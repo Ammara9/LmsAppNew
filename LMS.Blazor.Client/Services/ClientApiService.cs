@@ -37,9 +37,9 @@ public class ClientApiService(
         return await CallApiAsync<TRequest, TResponse>(endpoint, HttpMethod.Put, dto);
     }
 
-    public async Task<TResponse?> DeleteAsync<TResponse>(string endpoint, int id)
+    public async Task<HttpResponseMessage?> DeleteAsync<TRequest, HttpResponseMessage>(string endpoint, TRequest id)
     {
-        return await CallApiAsync<object?, TResponse>($"{endpoint}/{id}", HttpMethod.Delete, null);
+        return await CallApiAsync<object?, HttpResponseMessage>(endpoint, HttpMethod.Delete, id);
     }
 
     private async Task<TResponse?> CallApiAsync<TRequest, TResponse>(
