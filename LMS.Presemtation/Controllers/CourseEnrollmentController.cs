@@ -19,6 +19,7 @@ public class CourseEnrollmentController : ControllerBase
     [HttpGet("{courseId}/students")]
     public async Task<ActionResult<List<ApplicationUserDto>>> GetAssignedStudents(int courseId)
     {
+       
         var students = await _context.Enrollments
             .Where(e => e.CourseId == courseId)
             .Select(e => new ApplicationUserDto

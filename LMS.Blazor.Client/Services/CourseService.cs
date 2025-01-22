@@ -12,25 +12,49 @@ public class CourseService : ICourseService
     public CourseService(HttpClient httpClient)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.BaseAddress = new Uri("https://localhost:7044/"); // Ensure this matches your API
     }
 
     public async Task AssignStudentToCourse(int courseId, string studentId)
     {
-        var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/assign-student", new { StudentId = studentId });
-        response.EnsureSuccessStatusCode(); // Throws an exception if not successful
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/assign-student", new { StudentId = studentId });
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"Error assigning student: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId)
     {
-        return await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"api/courses/{courseId}/students");
+        try
+        {
+            var students = await _httpClient.GetFromJsonAsync<List<ApplicationUserDto>>($"api/courses/{courseId}/students");
+            return students ?? new List<ApplicationUserDto>();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"Error fetching assigned students: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task UnassignStudentFromCourse(int courseId, AssignStudentDto dto)
     {
-        var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/unassign-student", dto);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/unassign-student", dto);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"Error unassigning student: {ex.Message}");
+            throw;
+        }
     }
-
-
-
 }
+
