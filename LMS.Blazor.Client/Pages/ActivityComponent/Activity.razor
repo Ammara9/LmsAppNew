@@ -112,8 +112,8 @@ else
     [Parameter]
     public int moduleId { get; set; }
 
-    private ModuleDto module;
-    private CourseDto course;
+    private ModuleDto module = new();
+    private CourseDto course = new();
     private ActivityDto newActivityDto = new() { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) };
     private List<ActivityDto>? activities;
     private string? SuccessMessage;

@@ -23,9 +23,10 @@ namespace LMS.API
 
         // GET: api/modules/{moduleId}/Activities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
+        public async Task<ActionResult<IEnumerable<Activity>>> GetActivities(int moduleId)
         {
-            return await _context.Activities.ToListAsync();
+            var activities = await _context.Activities.Where(a => a.ModuleId == moduleId).ToListAsync();
+            return activities;
         }
 
         // GET: api/modules/{moduleId}/Activities/5
