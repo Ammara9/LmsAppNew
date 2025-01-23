@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LMS.Blazor.Client\LMS.Blazor.Client.csproj" />
     <ProjectReference Include="..\LMS.Presemtation\LMS.Presemtation.csproj" />
     <ProjectReference Include="..\LMS.Services\LMS.Services.csproj" />
     <ProjectReference Include="..\LMS.Shared\LMS.Shared.csproj" />

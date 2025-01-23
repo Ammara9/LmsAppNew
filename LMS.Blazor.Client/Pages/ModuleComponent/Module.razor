@@ -42,7 +42,9 @@ else
                         @* <AuthorizeView Roles="Admin, Teacher"> *@
                            
                                 <div class="d-flex gap-2">
-                                    <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
+                                    <a href="/addactivity/@courseId/@module.Id" class="btn btn-success">Add Activity</a>
+                            <a href="/activities/@module.Id" class="btn btn-success">Activity</a>
+
                                     <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
                                     <a href="/" class="btn btn-danger">Delete Module</a>
                                 </div>

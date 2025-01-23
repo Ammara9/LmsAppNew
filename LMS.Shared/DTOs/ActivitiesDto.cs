@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Entities
+namespace LMS.Shared.DTOs
 {
-    public class Activity
+    public class ActivitiesDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -19,6 +19,6 @@ namespace Domain.Models.Entities
         public int ModuleId { get; set; }
 
         //Navigation Properties
-        //public ActivityType? ActivityType { get; set; }
+        
     }
 }
