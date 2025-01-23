@@ -35,21 +35,22 @@ else
                         <div>
                             <h5 class="fw-bold d-inline">@module.Name</h5> :
                             <span class="ms-2">@module.Description</span>
+                            <p class="mb-1"> Continues: @module.StartDate.ToShortDateString() / @module.EndDate.ToShortDateString()</p>
+                            
                         </div>
 
                         <div class="d-flex gap-2">
                             <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
                             <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
-                            <a href="/documentlist/@courseId/@module.Id" class="btn btn-primary">Document List</a>
+                            
+                            <a href="/" class="btn btn-danger">Delete Module</a>
                         </div>
 
                     </div>
                     <hr />
-                    <div class="mt-1">
-                        <p class="mb-1">Start Date: @module.StartDate.ToShortDateString()</p>
-                        <p class="mb-1">End Date: @module.EndDate.ToShortDateString()</p>
-                    </div>
+                   
                 </div>
+               <documentlist Documents="documents" />
             </div>
         }
     </div>
