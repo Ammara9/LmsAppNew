@@ -1,7 +1,225 @@
-﻿@page "/registerstudent"
+﻿@page "/registerstudent/{courseId:int}"
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
 
-<h3>RegisterStudent</h3>
+@attribute [Authorize]
+@rendermode InteractiveWebAssembly
+
+<h3>Register Students to Course</h3>
+<p>Below are the students. You can assign or unassign them to this course.</p>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Assigned Course</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (students == null || !students.Any())
+		{
+			<tr>
+				<td colspan="4">No students found.</td>
+			</tr>
+		}
+		else
+		{
+			@foreach (var student in students)
+			{
+				<tr>
+					<td>@student.Name</td>
+					<td>@student.Email</td>
+					<td>
+						@if (IsStudentAssignedToCourse(student))
+						{
+							@GetAssignedCourseName(student.Id)
+						}
+						else
+						{
+							<span>Not assigned</span>
+						}
+					</td>
+					<td>
+						@if (IsStudentAssignedToCourse(student) && GetAssignedCourseId(student.Id) == courseId)
+						{
+							<button class="btn btn-danger btn-sm" @onclick="() => UnassignStudentFromCourse(student)">Unassign</button>
+						}
+						else if (!IsStudentAssignedToCourse(student))
+						{
+							<button class="btn btn-success btn-sm" @onclick="() => AssignStudentToCourse(student)">Assign</button>
+						}
+					</td>
+				</tr>
+			}
+		}
+	</tbody>
+</table>
 
 @code {
+	[Inject]
+	private IApiService _apiService { get; set; } = default!;
+	[Inject]
+	private ICourseService CourseService { get; set; } = default!;
 
+	[Parameter]
+	public int courseId { get; set; }
+
+	private List<ApplicationUserDto> students = new();
+	private Dictionary<string, List<(string CourseName, int CourseId)>> studentCourseMappings = new();
+
+	// Fetch all students and their assigned courses
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await FetchAllStudentsAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error loading students: {ex.Message}");
+		}
+	}
+
+	// Fetch all students and their assigned courses
+	private async Task FetchAllStudentsAsync()
+	{
+		try
+		{
+			// Fetch all users (students) and filter by role "Student"
+			students = (await _apiService.GetAsync<IEnumerable<ApplicationUserDto>>("api/users"))
+						?.Where(user => user.Role.Contains("Student"))
+						.ToList() ?? new List<ApplicationUserDto>();
+
+			Console.WriteLine($"Students fetched: {students.Count}");
+			foreach (var student in students)
+			{
+				Console.WriteLine($"Student: {student.Name}, ID: {student.Id}");
+			}
+
+			// Fetch student-course mappings
+			var rawMappings = await _apiService.GetAsync<IEnumerable<(string StudentId, string CourseName, int CourseId)>>("api/CourseEnrollment/enrollments");
+
+			// Group mappings by StudentId and store them in a dictionary
+		// 	studentCourseMappings = rawMappings?
+		// .GroupBy(mapping => mapping.StudentId)
+		// .ToDictionary(group => group.Key, group => group.Select(g => (g.CourseName, g.CourseId)).ToList())
+		// ?? new Dictionary<string, List<(string CourseName, int CourseId)>>();
+
+
+			// Log raw data to verify it's correct
+			Console.WriteLine($"Raw Mappings fetched: {rawMappings?.Count() ?? 0}");
+			foreach (var mapping in rawMappings)
+			{
+				Console.WriteLine($"Mapping: StudentId={mapping.StudentId}, CourseName={mapping.CourseName}, CourseId={mapping.CourseId}");
+			}
+
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error fetching data: {ex.Message}");
+		}
+	}
+
+	private bool IsStudentAssignedToCourse(ApplicationUserDto student)
+	{
+		// Ensure studentId is not null
+		if (student?.Id == null)
+		{
+			Console.WriteLine("Student ID is null");
+			return false;
+		}
+
+		var isAssigned = studentCourseMappings.ContainsKey(student.Id) && studentCourseMappings[student.Id].Any();
+		Console.WriteLine($"IsStudentAssignedToCourse: {student.Name} -> {isAssigned}");
+		return isAssigned;
+	}
+
+	private int? GetAssignedCourseId(string studentId)
+	{
+		if (string.IsNullOrEmpty(studentId) || !studentCourseMappings.ContainsKey(studentId) || !studentCourseMappings[studentId].Any())
+		{
+			Console.WriteLine($"No course assigned for student: {studentId}");
+			return null;
+		}
+
+		return studentCourseMappings[studentId].FirstOrDefault().CourseId;
+	}
+
+	private string GetAssignedCourseName(string studentId)
+	{
+		if (!studentCourseMappings.ContainsKey(studentId) || !studentCourseMappings[studentId].Any())
+		{
+			Console.WriteLine($"No valid mapping found for StudentId: {studentId}");
+			return "Not assigned";
+		}
+
+		// Join all course names into a comma-separated string
+		var courseNames = studentCourseMappings[studentId].Select(mapping => mapping.CourseName).ToList();
+		return string.Join(", ", courseNames);
+	}
+
+	private async Task AssignStudentToCourse(ApplicationUserDto student)
+	{
+		Console.WriteLine($"Assign button clicked for student: {student.Name} (ID: {student.Id})");
+
+		try
+		{
+			if (!studentCourseMappings.ContainsKey(student.Id))
+			{
+				studentCourseMappings[student.Id] = new List<(string, int)>();
+			}
+
+			// Check if the student is already assigned to the course
+			if (!studentCourseMappings[student.Id].Any(c => c.CourseId == courseId))
+			{
+				// Fetch the course name using CourseService
+				var courseName = await CourseService.GetCourseNameById(courseId);
+
+				// Add the new course with the fetched course name
+				studentCourseMappings[student.Id].Add((courseName, courseId));
+			}
+
+			// Update the student-course mapping in the database
+			await CourseService.AssignStudentToCourse(courseId, student.Id);
+
+			await FetchAllStudentsAsync();
+			StateHasChanged(); // Ensure the UI updates
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error assigning student: {ex.Message}");
+		}
+	}
+
+	private async Task UnassignStudentFromCourse(ApplicationUserDto student)
+	{
+		Console.WriteLine($"Unassign button clicked for student: {student.Name} (ID: {student.Id})");
+
+		try
+		{
+			if (studentCourseMappings.ContainsKey(student.Id))
+			{
+				// Find the course and remove it from the list
+				var course = studentCourseMappings[student.Id].FirstOrDefault(c => c.CourseId == courseId);
+				if (course != default)
+				{
+					studentCourseMappings[student.Id].Remove(course);
+				}
+			}
+
+			// Update the student-course mapping in the database
+			await CourseService.UnassignStudentFromCourse(courseId, student.Id);
+
+			await FetchAllStudentsAsync();
+			StateHasChanged(); // Ensure the UI updates
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error unassigning student: {ex.Message}");
+		}
+	}
 }

@@ -7,6 +7,7 @@ using AutoMapper;
 using Bogus.DataSets;
 using Domain.Models.Entities;
 using LMS.Infrastructure.Data;
+using LMS.Shared.DTOs;
 using LMS.Shared.DTOs.CourseDTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

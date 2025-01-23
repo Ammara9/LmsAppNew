@@ -88,9 +88,6 @@ namespace LMS.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -147,8 +144,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -192,9 +187,6 @@ namespace LMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ActivityId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CourseId")
                         .HasColumnType("int");
 
@@ -224,6 +216,30 @@ namespace LMS.Infrastructure.Migrations
                     b.HasIndex("UploadedById");
 
                     b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Enrollment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Module", b =>
@@ -419,13 +435,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("UploadedBy");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
-                {
-                    b.HasOne("Domain.Models.Entities.Course", null)
-                        .WithMany("Enrollments")
-                        .HasForeignKey("CourseId");
-                });
-
             modelBuilder.Entity("Domain.Models.Entities.Document", b =>
                 {
                     b.HasOne("Domain.Models.Entities.ApplicationUser", "UploadedBy")
@@ -433,6 +442,25 @@ namespace LMS.Infrastructure.Migrations
                         .HasForeignKey("UploadedById");
 
                     b.Navigation("UploadedBy");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Enrollment", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.Course", "Course")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Module", b =>
@@ -495,6 +523,11 @@ namespace LMS.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Course", b =>

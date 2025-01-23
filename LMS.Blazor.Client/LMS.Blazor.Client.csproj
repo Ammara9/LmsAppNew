@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.2" />
     <PackageReference Include="microsoft.aspnetcore.components.webassembly.authentication" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
@@ -16,6 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain.Models\Domain.Models.csproj" />
+    <ProjectReference Include="..\LMS.Infrastructure\LMS.Infrastructure.csproj" />
     <ProjectReference Include="..\LMS.Shared\LMS.Shared.csproj" />
   </ItemGroup>
 

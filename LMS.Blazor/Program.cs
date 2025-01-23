@@ -29,6 +29,7 @@ builder.Services.AddScoped<AuthenticationStateProvider,
     PersistingRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddScoped<IApiService, ClientApiService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -62,6 +63,7 @@ builder.Services.AddHttpClient("LmsAPIClient", cfg =>
          cfg.BaseAddress = new Uri(
             builder.Configuration["LmsAPIBaseAddress"] ??
                 throw new Exception("LmsAPIBaseAddress is missing."));
+         cfg.Timeout = TimeSpan.FromMinutes(10);
      });
 
 builder.Services.Configure<PasswordHasherOptions>(options => options.IterationCount = 10000);

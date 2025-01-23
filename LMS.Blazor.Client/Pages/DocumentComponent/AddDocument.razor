@@ -2,7 +2,7 @@
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
-@using LMS.Shared.DTOs
+@using LMS.Shared.DTOs.DocumentDTO
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components
@@ -11,7 +11,7 @@
 @attribute [Authorize]
 
 <h2>Add a New Document</h2>
-<EditForm Model="newDocumentDto" method="post">
+<EditForm Model="newDocumentDto" method="post" OnValidSubmit="AddDocumentAsync">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
@@ -38,16 +38,16 @@
 
     <div class="d-flex gap-2 mb-4">
         <a href="/module/@moduleId" class="btn btn-primary">Back to Module</a>
-        <button type="submit" class="btn btn-success" @onclick="AddDocumentAsync">Submit</button>
+        <button type="submit" class="btn btn-success" @* @onclick="AddDocumentAsync" *@>Upload Document</button>
     </div>
 </EditForm>
 
-@if (!string.IsNullOrEmpty(SuccessMessage))
+@if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-success mt-2">@SuccessMessage</div>
+    <div class="alert @(IsSuccess ? "alert-success" : "alert-danger") mt-2">@Message</div>
 }
 
-<h3>Existing Documents</h3>
+<h3 class="mt-2">Existing Documents</h3>
 @if (documents == null)
 {
     <p>Loading documents...</p>
@@ -84,6 +84,8 @@ else
 @code {
     [Inject]
     private IApiService _apiService { get; set; } = default!;
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
     [Parameter]
     public int courseId { get; set; }
@@ -91,10 +93,13 @@ else
     [Parameter]
     public int moduleId { get; set; }
 
-    private DocumentDto newDocumentDto = new();
+    private DocumentUploadDto newDocumentDto = new();
     private List<DocumentDto>? documents;
-    private string? SuccessMessage;
+    private string? Message;
     private IBrowserFile? uploadedFile;
+    private string uploadPath = string.Empty;
+    private bool isFileSelected = false;
+    private bool IsSuccess = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,56 +109,41 @@ else
     {
         if (uploadedFile != null)
         {
-            var filePath = await UploadFileAsync(uploadedFile);
-            newDocumentDto.FilePath = filePath;
-
-            // Create the multipart form data content
-            var formContent = new MultipartFormDataContent();
-
-            // Add the file content
-            var fileContent = new StreamContent(uploadedFile.OpenReadStream());
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(uploadedFile.ContentType);
-            formContent.Add(fileContent, "file", uploadedFile.Name);
-
-            // Add other form data (name, description, etc.)
-            formContent.Add(new StringContent(newDocumentDto.Name), "name");
-            formContent.Add(new StringContent(newDocumentDto.Description), "description");
-
             try
             {
-                // Use the PostMultipartFormDataAsync method from IApiService
-                var response = await _apiService.PostMultipartFormDataAsync(
-                    $"api/courses/{courseId}/module/{moduleId}/document",
-                    formContent
-                );
+                uploadPath = await UploadFileAsync(uploadedFile);
+                newDocumentDto.FilePath = uploadedFile;
+                newDocumentDto.ModuleId = moduleId;
+                newDocumentDto.UploadedAt = DateTime.Now;
 
-                if (response.IsSuccessStatusCode)
+            var createdDocument = await _apiService.PostAsync<DocumentUploadDto, DocumentDto>($"api/courses/{courseId}/module/{moduleId}/document", newDocumentDto);
+
+                if (createdDocument != null)
                 {
-                    SuccessMessage = "Document uploaded successfully!";
+                    ShowMessage("Document uploaded successfully!",true);
                     await FetchDocumentsAsync(); // Fetch the updated list of documents
-                    newDocumentDto = new DocumentDto(); // Reset form
+                    newDocumentDto = new DocumentUploadDto(); // Reset form
+                    uploadedFile = null; // Reset the file input
+                    isFileSelected = false;
                 }
                 else
                 {
-                    // Log or display the status code if not successful
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    SuccessMessage = $"Failed to upload the document. Error: {response.StatusCode}, {errorMessage}";
-                    Console.Error.WriteLine($"Error uploading document: {response.StatusCode}, {errorMessage}");
+                    ShowMessage("Failed to upload the document.",false);
                 }
+                
             }
             catch (Exception ex)
             {
-                // Log the exception and show a general error message
-                SuccessMessage = $"Error: {ex.Message}";
-                Console.Error.WriteLine($"Exception during document upload: {ex.Message}");
+                Console.WriteLine($"Error when uploading a document: {ex.Message}");
+                ShowMessage("Error uploading document: " + ex.Message, false);
             }
         }
         else
         {
-            SuccessMessage = "No file selected.";
+            ShowMessage("Please select a file to upload.", false);
         }
+        
     }
-
 
     private async Task FetchDocumentsAsync()
     {
@@ -196,8 +186,31 @@ else
     }
 
 
-    private void OnFileChange(InputFileChangeEventArgs e)
+    private async Task OnFileChange(InputFileChangeEventArgs e)
     {
         uploadedFile = e.File;
+        var buffer = new byte[uploadedFile.Size];
+        await uploadedFile.OpenReadStream().ReadAsync(buffer);
+    }
+
+    private void ShowMessage(string message, bool isSuccess)
+    {
+        Message = message;
+        IsSuccess = isSuccess;
+        //StartDismissTimer();
+    }
+
+    private void StartDismissTimer()
+    {
+        // Dismiss the alert after 5 seconds (5000 ms)
+        var timer = new System.Timers.Timer(5000);
+        timer.Elapsed += (sender, args) =>
+        {
+            Message = string.Empty;
+            timer.Stop();
+            timer.Dispose();
+            InvokeAsync(StateHasChanged); // Trigger UI update
+        };
+        timer.Start();
     }
 }
