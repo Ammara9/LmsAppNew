@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS.API
+namespace LMS.Presemtation.Controllers
 {
     [Route("api/courses/{courseId}/module")]
     [ApiController]
