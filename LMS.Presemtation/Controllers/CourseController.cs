@@ -72,7 +72,6 @@ public class CourseController : ControllerBase
     }
 
     [HttpPost]// Post: api/courses - Create new course
-
     public async Task<IActionResult> CreateCourses(CourseDto courseDto)
     {
         //var returnCourse = new CourseDto { Id = courseDto.Id, Name = courseDto.Name };

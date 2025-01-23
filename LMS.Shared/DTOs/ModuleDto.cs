@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models.Entities;
+using LMS.Shared.DTOs.CourseDTO;
 
 namespace LMS.Shared.DTOs
 {
@@ -15,6 +17,7 @@ namespace LMS.Shared.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int CourseId { get; set; } //Foreign key
+        public CourseDto Course { get; set; } //Navigation property
 
         //public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     }

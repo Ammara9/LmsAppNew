@@ -11,7 +11,8 @@
 
 @attribute [Authorize]
 
-<h2>Course: @course.Name | Module: @module.Name</h2>
+<p>Course: @module?.Course?.Name</p>
+<p>Module: @module?.Name</p>
 <h2>Add a New Activity</h2>
 <EditForm Model="newActivityDto" method="post">
     <DataAnnotationsValidator />
@@ -113,7 +114,6 @@ else
     public int moduleId { get; set; }
 
     private ModuleDto module = new();
-    private CourseDto course = new();
     private ActivityDto newActivityDto = new() { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) };
     private List<ActivityDto>? activities;
     private string? SuccessMessage;
@@ -121,13 +121,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         await FetchActivitiesAsync();
-        // await FetchModuleAsync();
-        // await FetchCourseAsync();
+        await FetchModuleAsync();
     }
 
     private async Task AddActivityAsync()
     {
-        var createdActivity = await _apiService.PostAsync<ActivityDto, ActivityDto>($"api/modules/{moduleId}/activity", newActivityDto);
+        // var createdActivity = await _apiService.PostAsync<ActivityDto, ActivityDto>($"api/modules/{moduleId}/activity", newActivityDto);
+        var createdActivity = await _apiService.PostAsync<ActivityDto, ActivityDto>($"api/activities", newActivityDto);
 
         if (createdActivity != null)
         {
@@ -145,34 +145,26 @@ else
     {
         try
         {
-            activities = (await _apiService.GetAsync<IEnumerable<ActivityDto>>($"api/modules/{moduleId}/activity"))?.ToList();
+            // activities = (await _apiService.GetAsync<IEnumerable<ActivityDto>>($"api/modules/{moduleId}/activity"))?.ToList();
+            activities = (await _apiService.GetAsync<IEnumerable<ActivityDto>>($"api/activities/module/{moduleId}"))?.ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error fetching activity: {ex.Message}");
         }
     }
-    // private async Task FetchModuleAsync()
-    // {
-    //     try
-    //     {
-    //         module = (await _apiService.GetAsync<ModuleDto>($"api/modules/{moduleId}"));
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.Error.WriteLine($"Error fetching module: {ex.Message}");
-    //     }
-    // }
-    // private async Task FetchCourseAsync()
-    // {
-    //     try
-    //     {
-    //         course = (await _apiService.GetAsync<CourseDto>($"api/course/{module.CourseId}"));
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.Error.WriteLine($"Error fetching course: {ex.Message}");
-    //     }
-    // }
+    private async Task FetchModuleAsync()
+    {
+        try
+        {
+            module = (await _apiService.GetAsync<ModuleDto>($"api/modules/{moduleId}"));
+            if (module == null) module = new ModuleDto();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching module: {ex.Message}");
+        }
+    }
+
 
 }

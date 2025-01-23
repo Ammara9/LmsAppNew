@@ -10,7 +10,7 @@ public class ActivityDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int ActivityTypeId { get; set; }
+    public string? ActivityTypeName { get; set; }
     public int ModuleId { get; set; }
-    public ActivityType? ActivityType { get; set; }
-    public Module? Module { get; set; }
+    public ModuleDto? Module { get; set; }
 }

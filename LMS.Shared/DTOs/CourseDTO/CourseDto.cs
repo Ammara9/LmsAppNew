@@ -14,5 +14,7 @@ public class CourseDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
-    public ICollection<Module> Modules { get; set; } = new List<Module>();
+
+    // utkommenterad för den användes inte och 
+    //public ICollection<Module> Modules { get; set; } = new List<Module>();
 }

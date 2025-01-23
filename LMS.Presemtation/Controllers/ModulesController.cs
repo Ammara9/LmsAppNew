@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Domain.Models.Entities;
 using LMS.Infrastructure.Data;
 using LMS.Shared.DTOs;
+using LMS.Shared.DTOs.CourseDTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,39 @@ namespace LMS.API
                 EndDate = module.EndDate,
                 CourseId = module.CourseId,
             };
+
+            return Ok(moduleDto);
+        }
+
+        // GET: api/modules/{moduleId}
+        [HttpGet]
+        [Route("~/api/modules/{moduleId}")]
+        public async Task<ActionResult<ModuleDto>> GetModuleById(int moduleId)
+        {
+            var moduleDto = await _context.Modules!
+                .Include(m => m.Course)
+                .Where(m => m.Id == moduleId)
+                .Select(m => new ModuleDto
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Description = m.Description,
+                    StartDate = m.StartDate,
+                    EndDate = m.EndDate,
+                    CourseId = m.CourseId,
+                    Course = new CourseDto
+                    {
+                        Id = m.Course.Id,
+                        Name = m.Course.Name,
+                        Description = m.Course.Description,
+                        StartDate = m.Course.StartDate
+                    }
+                }).FirstOrDefaultAsync();
+
+            if (moduleDto == null)
+            {
+                return NotFound($"Module with ID {moduleId} not found.");
+            }
 
             return Ok(moduleDto);
         }
