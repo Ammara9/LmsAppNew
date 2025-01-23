@@ -1,0 +1,203 @@
+﻿@page "/adddocument/{courseId:int}/{moduleId:int}"
+@rendermode InteractiveWebAssembly
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@attribute [Authorize]
+
+<h2>Add a New Document</h2>
+<EditForm Model="newDocumentDto" method="post">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group row">
+        <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="name" class="form-control form-control-lg bg-light mb-3" @bind-Value="newDocumentDto.Name" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
+        <div class="col-sm-12 col-md-4">
+            <InputText id="description" class="form-control form-control-lg bg-light mb-3" @bind-Value="newDocumentDto.Description" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="file" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Upload File</label>
+        <div class="col-sm-12 col-md-4">
+            <InputFile id="file" class="form-control form-control-lg bg-light mb-3" OnChange="OnFileChange" />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-4">
+        <a href="/module/@moduleId" class="btn btn-primary">Back to Module</a>
+        <button type="submit" class="btn btn-success" @onclick="AddDocumentAsync">Submit</button>
+    </div>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <div class="alert alert-success mt-2">@SuccessMessage</div>
+}
+
+<h3>Existing Documents</h3>
+@if (documents == null)
+{
+    <p>Loading documents...</p>
+}
+else if (documents.Count == 0)
+{
+    <p>No documents found for this module.</p>
+}
+else
+{
+    <div class="list-group mt-4">
+        @foreach (var document in documents)
+        {
+            <div class="list-group-item mb-3" style="padding: 5px; background-color: white; border-radius: 5px; border: 1px solid #ddd;">
+                <div class="p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold d-inline">@document.Name</h5> :
+                            <span class="ms-2">@document.Description</span>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="mt-1">
+                        @* <p class="mb-1">Uploaded At: @document.UploadedAt.ToShortDateString()</p> *@
+                        <p><strong>File:</strong> <a href="@document.FilePath" target="_blank">Download</a></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+}
+
+@code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+
+    [Parameter]
+    public int courseId { get; set; }
+
+    [Parameter]
+    public int moduleId { get; set; }
+
+    private DocumentDto newDocumentDto = new();
+    private List<DocumentDto>? documents;
+    private string? SuccessMessage;
+    private IBrowserFile? uploadedFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchDocumentsAsync();
+    }
+    private async Task AddDocumentAsync()
+    {
+        if (uploadedFile != null)
+        {
+            var filePath = await UploadFileAsync(uploadedFile);
+            newDocumentDto.FilePath = filePath;
+
+            // Create the multipart form data content
+            var formContent = new MultipartFormDataContent();
+
+            // Add the file content
+            var fileContent = new StreamContent(uploadedFile.OpenReadStream());
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(uploadedFile.ContentType);
+            formContent.Add(fileContent, "file", uploadedFile.Name);
+
+            // Add other form data (name, description, etc.)
+            formContent.Add(new StringContent(newDocumentDto.Name), "name");
+            formContent.Add(new StringContent(newDocumentDto.Description), "description");
+
+            try
+            {
+                // Use the PostMultipartFormDataAsync method from IApiService
+                var response = await _apiService.PostMultipartFormDataAsync(
+                    $"api/courses/{courseId}/module/{moduleId}/document",
+                    formContent
+                );
+
+                if (response.IsSuccessStatusCode)
+                {
+                    SuccessMessage = "Document uploaded successfully!";
+                    await FetchDocumentsAsync(); // Fetch the updated list of documents
+                    newDocumentDto = new DocumentDto(); // Reset form
+                }
+                else
+                {
+                    // Log or display the status code if not successful
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    SuccessMessage = $"Failed to upload the document. Error: {response.StatusCode}, {errorMessage}";
+                    Console.Error.WriteLine($"Error uploading document: {response.StatusCode}, {errorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and show a general error message
+                SuccessMessage = $"Error: {ex.Message}";
+                Console.Error.WriteLine($"Exception during document upload: {ex.Message}");
+            }
+        }
+        else
+        {
+            SuccessMessage = "No file selected.";
+        }
+    }
+
+
+    private async Task FetchDocumentsAsync()
+    {
+        try
+        {
+            documents = (await _apiService.GetAsync<IEnumerable<DocumentDto>>($"api/courses/{courseId}/module/{moduleId}/document"))?.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching documents: {ex.Message}");
+        }
+    }
+
+    private async Task<string> UploadFileAsync(IBrowserFile file)
+    {
+        // Define the folder where the files will be saved
+        var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+        // Ensure the directory exists
+        if (!Directory.Exists(uploadDirectory))
+        {
+            Directory.CreateDirectory(uploadDirectory);
+        }
+
+        // Generate a unique file name to avoid overwriting existing files
+        var fileName = Path.GetFileName(file.Name);
+        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}"; // Add GUID to the file name for uniqueness
+
+        // Combine the directory and file name to get the full file path
+        var filePath = Path.Combine(uploadDirectory, uniqueFileName);
+
+        // Save the file to the server
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.OpenReadStream().CopyToAsync(stream);
+        }
+
+        // Return the file path (the path that will be stored in the database)
+        return $"/uploads/{uniqueFileName}";
+    }
+
+
+    private void OnFileChange(InputFileChangeEventArgs e)
+    {
+        uploadedFile = e.File;
+    }
+}
