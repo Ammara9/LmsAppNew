@@ -88,9 +88,6 @@ namespace LMS.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -147,8 +144,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -191,9 +186,6 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ActivityId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("CourseId")
                         .HasColumnType("int");
@@ -430,13 +422,6 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ActivityType");
-                });
-
-            modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
-                {
-                    b.HasOne("Domain.Models.Entities.Course", null)
-                        .WithMany("Enrollments")
-                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Document", b =>

@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(LmsContext))]
-<<<<<<<< HEAD:LMS.Infrastructure/Migrations/20250122092138_Init.Designer.cs
-    [Migration("20250122092138_Init")]
-    partial class Init
-========
-    [Migration("20250123141551_FinalUpdate")]
-    partial class FinalUpdate
->>>>>>>> Dev:LMS.Infrastructure/Migrations/20250123141551_FinalUpdate.Designer.cs
+    [Migration("20250123145746_LastUpdate")]
+    partial class LastUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,9 +91,6 @@ namespace LMS.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -155,8 +147,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -199,9 +189,6 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ActivityId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("CourseId")
                         .HasColumnType("int");
@@ -438,13 +425,6 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ActivityType");
-                });
-
-            modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
-                {
-                    b.HasOne("Domain.Models.Entities.Course", null)
-                        .WithMany("Enrollments")
-                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Document", b =>

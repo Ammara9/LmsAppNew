@@ -30,7 +30,7 @@ namespace LMS.API
 
 		// GET: api/courses/{courseId}/modules/{moduleId}/document
 		[HttpGet]
-        public async Task<ActionResult<IEnumerable<Document>>> GetDocuments(
+       /* public async Task<ActionResult<IEnumerable<Document>>> GetDocuments(
             int courseId,
             int moduleId
         )
@@ -40,7 +40,7 @@ namespace LMS.API
 				.ToListAsync();
 
 			return documents;
-		}
+		} */
 
 		// GET: api/courses/{courseId}/modules/{moduleId}/document/{id}
 		[HttpGet("{id}")]
