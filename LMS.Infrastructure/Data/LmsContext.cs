@@ -12,6 +12,8 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
 
     public DbSet<Course> Courses { get; set; }
     public DbSet<Module> Modules { get; set; }
+    public DbSet<Document>? Documents { get; set; }
+
     public DbSet<Enrollment> Enrollments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -29,8 +31,6 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
             .WithMany(u => u.Enrollments)
             .HasForeignKey(e => e.StudentId);
     }
-    public DbSet<Course>? Courses { get; set; }
-    public DbSet<Module>? Modules { get; set; }
+   
 
-    public DbSet<Document>? Documents { get; set; }
 }
