@@ -103,10 +103,10 @@
 			var rawMappings = await _apiService.GetAsync<IEnumerable<(string StudentId, string CourseName, int CourseId)>>("api/CourseEnrollment/enrollments");
 
 			// Group mappings by StudentId and store them in a dictionary
-			studentCourseMappings = rawMappings?
-		.GroupBy(mapping => mapping.StudentId)
-		.ToDictionary(group => group.Key, group => group.Select(g => (g.CourseName, g.CourseId)).ToList())
-		?? new Dictionary<string, List<(string CourseName, int CourseId)>>();
+		// 	studentCourseMappings = rawMappings?
+		// .GroupBy(mapping => mapping.StudentId)
+		// .ToDictionary(group => group.Key, group => group.Select(g => (g.CourseName, g.CourseId)).ToList())
+		// ?? new Dictionary<string, List<(string CourseName, int CourseId)>>();
 
 
 			// Log raw data to verify it's correct
