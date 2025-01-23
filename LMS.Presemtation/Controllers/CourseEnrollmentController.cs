@@ -33,29 +33,29 @@ public class CourseEnrollmentController : ControllerBase
         return Ok(mappings);
     }
 
-    // Get all students assigned to a specific course
-    [HttpGet("{courseId}/students")]
-    public async Task<ActionResult<List<ApplicationUserDto>>> GetAssignedStudents(int courseId)
-    {
+    //// Get all students assigned to a specific course
+    //[HttpGet("{courseId}/students")]
+    //public async Task<ActionResult<List<ApplicationUserDto>>> GetAssignedStudents(int courseId)
+    //{
 
-        var students = await _context.Enrollments
-            .Where(e => e.CourseId == courseId)
-            .Select(e => new ApplicationUserDto
-            {
-                Id = e.ApplicationUser.Id,
-                Name = e.ApplicationUser.Name,
-                Email = e.ApplicationUser.Email,
-                Role = e.ApplicationUser.Role
-            })
-            .ToListAsync();
+    //    var students = await _context.Enrollments
+    //        .Where(e => e.CourseId == courseId)
+    //        .Select(e => new ApplicationUserDto
+    //        {
+    //            Id = e.ApplicationUser.Id,
+    //            Name = e.ApplicationUser.Name,
+    //            Email = e.ApplicationUser.Email,
+    //            Role = e.ApplicationUser.Role
+    //        })
+    //        .ToListAsync();
 
-        if (!students.Any())
-        {
-            return NotFound("No students found for this course.");
-        }
+    //    if (!students.Any())
+    //    {
+    //        return NotFound("No students found for this course.");
+    //    }
 
-        return Ok(students);
-    }
+    //    return Ok(students);
+    //}
 
     // Assign a student to a course
     [HttpPost("{courseId}/assign-student")]
