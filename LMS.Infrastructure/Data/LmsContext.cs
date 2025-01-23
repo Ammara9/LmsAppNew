@@ -25,13 +25,15 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
         builder.Entity<Enrollment>()
             .HasOne(e => e.Course)
             .WithMany(c => c.Enrollments)
-            .HasForeignKey(e => e.CourseId);
+            .HasForeignKey(e => e.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Enrollment>()
             .HasOne(e => e.ApplicationUser)
             .WithMany(u => u.Enrollments)
-            .HasForeignKey(e => e.StudentId);
+            .HasForeignKey(e => e.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
-   
+
 
 }
