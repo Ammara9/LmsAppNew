@@ -8,65 +8,14 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using LMS.Blazor.Client.Pages.DocumentComponent
 
 @attribute [Authorize]
 
 @if (course != null)
 {
-    <h1 style="text-align: center; color: darkblue; font-style: italic;">Welcome to the @course.Name Course!</h1>
+    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Modules For Course @course.Name!</h1>
 }
-<div class="d-flex justify-content-center align-items-center" >
-    <div class="card" style="background-color: lightblue; border: 2px solid black; border-radius: 10px; width: 50%;">
-        <div class="card-body">
-            <h2 class="text-center">Add a New Module</h2>
-
-            <EditForm Model="newModuleDto" method="post">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
-                <div class="form-group row mb-3">
-                    <label for="name" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Name</label>
-                    <div class="col-sm-12 col-md-8">
-                        <InputText id="name" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.Name" />
-                    </div>
-                </div>
-
-                <div class="form-group row mb-3">
-                    <label for="description" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Description</label>
-                    <div class="col-sm-12 col-md-8">
-                        <InputText id="description" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.Description" />
-                    </div>
-                </div>
-
-                <div class="form-group row mb-3">
-                    <label for="startDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">Start Date</label>
-                    <div class="col-sm-12 col-md-8">
-                        <InputDate id="startDate" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.StartDate" />
-                    </div>
-                </div>
-
-                <div class="form-group row mb-3">
-                    <label for="endDate" class="col-sm-12 col-md-2 col-form-label fw-bold h4">End Date</label>
-                    <div class="col-sm-12 col-md-8">
-                        <InputDate id="endDate" class="form-control form-control-lg bg-light" @bind-Value="newModuleDto.EndDate" />
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="/courses" class="btn btn-primary">Back to Course</a>
-                    <button type="submit" class="btn btn-success" @onclick="AddModuleAsync">Submit</button>
-                </div>
-            </EditForm>
-        </div>
-    </div>
-</div>
-
-@if (!string.IsNullOrEmpty(SuccessMessage))
-{
-    <div class="alert alert-success mt-2">@SuccessMessage</div>
-}
-
-<h3>Existing Modules</h3>
 @if (modules == null)
 {
     <p>Loading modules...</p>
@@ -86,18 +35,25 @@ else
                         <div>
                             <h5 class="fw-bold d-inline">@module.Name</h5> :
                             <span class="ms-2">@module.Description</span>
+                            <p class="mb-1"> Continues: @module.StartDate.ToShortDateString() / @module.EndDate.ToShortDateString()</p>
+                            
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
-                            <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
-                        </div>
+                       
+                        @* <AuthorizeView Roles="Admin, Teacher"> *@
+                           
+                                <div class="d-flex gap-2">
+                                    <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
+                                    <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
+                                    <a href="/" class="btn btn-danger">Delete Module</a>
+                                </div>
+                           
+                        @* </AuthorizeView> *@
+                         
                     </div>
                     <hr />
-                    <div class="mt-1">
-                        <p class="mb-1">Start Date: @module.StartDate.ToShortDateString()</p>
-                        <p class="mb-1">End Date: @module.EndDate.ToShortDateString()</p>
-                    </div>
+                    <documentlist Documents="documents" />
                 </div>
+               
             </div>
         }
     </div>

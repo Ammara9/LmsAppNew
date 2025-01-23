@@ -32,14 +32,24 @@ public class ClientApiService(
     {
         return await CallApiAsync<object?, TResponse>(endpoint, HttpMethod.Get, id);
     }
+
     public async Task<TResponse?> PutAsyncById<TRequest, TResponse>(string endpoint, TRequest dto)
     {
         return await CallApiAsync<TRequest, TResponse>(endpoint, HttpMethod.Put, dto);
     }
 
-    public async Task<TResponse?> DeleteAsync<TResponse>(string endpoint, int id)
+    public async Task<HttpResponseMessage?> DeleteAsync<TRequest, HttpResponseMessage>(string endpoint, TRequest id)
     {
-        return await CallApiAsync<object?, TResponse>($"{endpoint}/{id}", HttpMethod.Delete, null);
+        return await CallApiAsync<object?, HttpResponseMessage>(endpoint, HttpMethod.Delete, id);
+    }
+
+    public async Task<HttpResponseMessage> PostMultipartFormDataAsync(
+        string uri,
+        MultipartFormDataContent content
+    )
+    {
+        var response = await httpClient.PostAsync(uri, content);
+        return response;
     }
 
     private async Task<TResponse?> CallApiAsync<TRequest, TResponse>(

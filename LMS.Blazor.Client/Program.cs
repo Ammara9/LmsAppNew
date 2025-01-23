@@ -6,6 +6,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 // register api service for calls originating from WASM
 builder.Services.AddScoped<IApiService, ClientApiService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 
 builder.Services.AddHttpClient("BffClient", cfg =>
@@ -13,6 +14,7 @@ builder.Services.AddHttpClient("BffClient", cfg =>
     cfg.BaseAddress = new Uri("https://localhost:7224");
     cfg.Timeout = TimeSpan.FromMinutes(10);
 });
+
 
 
 builder.Services.AddSingleton<AuthenticationStateProvider,

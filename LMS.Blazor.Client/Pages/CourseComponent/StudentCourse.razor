@@ -1,10 +1,55 @@
-﻿@page "/studentcourse"
-@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+﻿@page "/course"
+@rendermode InteractiveWebAssembly
 
-<h3>StudentCourse</h3>
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs.CourseDTO
+@inject NavigationManager Navigation
 
+<h1>LMS Course</h1>
+
+@if (courses == null)
+{
+    <p class="text-center">Loading...</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 g-4 mt-4">
+        @foreach (var item in courses)
+        {
+            <div class="col">
+                <div class="card border-secondary" @onclick="() => NavigateToModule(item.Id)" style="cursor: pointer;">
+                    <a href="/module/@item.Id" class="card-title text-center text-decoration-underline" style="cursor: pointer; font-size: 24px; font-weight: bold;">
+                        @item.Name
+                    </a>
+                    <div class="card-body">
+                        <p class="card-text">@item.Description</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
 
+    private List<CourseDto>? courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            courses = (await _apiService.GetAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? new List<CourseDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading courses: {ex.Message}");
+        }
+    }
+
+    private void NavigateToModule(int courseId)
+    {
+        Navigation.NavigateTo($"/module/{courseId}");
+    }
 }
