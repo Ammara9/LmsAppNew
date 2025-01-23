@@ -28,7 +28,11 @@ else
             <div class="col">
                 <div class="card border-secondary">
                     <div class="card-header">
-                        <h3 href="/module/@item.Id" class="card-title fw-bold text-center">@item.Name</h3>
+                        <a href="/module/@item.Id" class="card-title text-center text-decoration-underline" style="cursor: pointer; font-size: 24px; font-weight: bold;">
+                            @item.Name
+                        </a>
+
+
                     </div>
                     <div class="card-body">
                         <p class="card-text"><strong>Description:</strong> @item.Description</p>
@@ -39,7 +43,7 @@ else
                         </div>
                         <div class="d-flex justify-content-center">
                             <a href="/registerstudent/@item.Id" class="btn btn-success mx-2">Add Student</a>
-                            <a href="/module/@item.Id" class="btn btn-warning mx-2">Add Module</a>
+                            <a href="/addmodule/@item.Id" class="btn btn-warning mx-2">Add Module</a>
                         </div>
 
                     </div>
