@@ -22,21 +22,6 @@ namespace LMS.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ApplicationUserCourse", b =>
-                {
-                    b.Property<int>("EnrollmentsId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EnrollmentsId1")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("EnrollmentsId", "EnrollmentsId1");
-
-                    b.HasIndex("EnrollmentsId1");
-
-                    b.ToTable("ApplicationUserCourse");
-                });
-
             modelBuilder.Entity("Domain.Models.Entities.Activity", b =>
                 {
                     b.Property<int>("Id")
@@ -103,6 +88,9 @@ namespace LMS.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -158,6 +146,8 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -401,21 +391,6 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ApplicationUserCourse", b =>
-                {
-                    b.HasOne("Domain.Models.Entities.Course", null)
-                        .WithMany()
-                        .HasForeignKey("EnrollmentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("EnrollmentsId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Models.Entities.Activity", b =>
                 {
                     b.HasOne("Domain.Models.Entities.ActivityType", "ActivityType")
@@ -444,13 +419,31 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("UploadedBy");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.Module", b =>
+            modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("Domain.Models.Entities.Course", null)
+                        .WithMany("Enrollments")
+                        .HasForeignKey("CourseId");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Document", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.ApplicationUser", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById");
+
+                    b.Navigation("UploadedBy");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Module", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.Course", "Course")
                         .WithMany("Modules")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -506,6 +499,8 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Course", b =>
                 {
+                    b.Navigation("Enrollments");
+
                     b.Navigation("Modules");
                 });
 
