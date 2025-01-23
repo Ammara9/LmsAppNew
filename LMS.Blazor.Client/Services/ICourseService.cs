@@ -9,7 +9,8 @@ namespace LMS.Blazor.Client.Services
     public interface ICourseService
     {
         Task<List<ApplicationUserDto>> GetAssignedStudents(int courseId);
+        Task<string> GetCourseNameById(int courseId);
         Task AssignStudentToCourse(int courseId, string studentId);
-        Task UnassignStudentFromCourse(int courseId, AssignStudentDto dto);
+        Task UnassignStudentFromCourse(int courseId, string studentId);
     }
 }
