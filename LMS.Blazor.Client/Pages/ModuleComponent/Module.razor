@@ -12,7 +12,10 @@
 
 @attribute [Authorize]
 
-<h3>Existing Modules</h3>
+@if (course != null)
+{
+    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Modules For Course @course.Name!</h1>
+}
 @if (modules == null)
 {
     <p>Loading modules...</p>
