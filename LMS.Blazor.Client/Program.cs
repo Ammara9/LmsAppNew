@@ -11,6 +11,7 @@ builder.Services.AddScoped<IApiService, ClientApiService>();
 builder.Services.AddHttpClient("BffClient", cfg =>
 {
     cfg.BaseAddress = new Uri("https://localhost:7224");
+    cfg.Timeout = TimeSpan.FromMinutes(10);
 });
 
 
