@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LMS.Presentation.Controllers
+namespace LMS.Presemtation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
