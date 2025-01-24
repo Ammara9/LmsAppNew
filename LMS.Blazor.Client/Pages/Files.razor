@@ -1,4 +1,4 @@
-﻿@page "/documentlist/{moduleId:int}"
+﻿@page "/files/{moduleId:int}"
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
@@ -8,7 +8,7 @@
 
 @attribute [Authorize]
 
-<h3>Submitted Documents</h3>
+<h3>Module Files</h3>
 @if (documents == null)
 {
     <p>Loading documents...</p>
@@ -22,16 +22,16 @@ else
     <div class="container mt-4">
         <!-- Back to Home Button (left-aligned) -->
         <div class="mb-3">
-            <a href="/modulecontent" class="btn btn-primary">Back to Module Content</a>
+            <a href="/modulecontent" class="btn btn-primary">Back to Module</a>
         </div>
 
         <div class="list-group-item mb-3" style="padding: 5px; background-color: lightgray; border-radius: 5px; border: 1px solid #ddd;">
-        <div class="row mb-2 ">
-            <div class="col-3 fw-bold border-end">Name</div>
-            <div class="col-3 fw-bold border-end">Description</div>
-            <div class="col-3 fw-bold border-end">File</div>
-            <div class="col-3 fw-bold">Uploaded At</div>
-        </div>
+            <div class="row mb-2 ">
+                <div class="col-3 fw-bold border-end">Name</div>
+                <div class="col-3 fw-bold border-end">Description</div>
+                <div class="col-3 fw-bold border-end">File</div>
+                <div class="col-3 fw-bold">Uploaded At</div>
+            </div>
         </div>
 
 

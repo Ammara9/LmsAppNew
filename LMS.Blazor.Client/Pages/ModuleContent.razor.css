@@ -1,0 +1,4 @@
+﻿.hover-link:hover {
+    color: forestgreen;/* Example hover color (change this to your desired color) */
+    text-decoration: underline; /* Ensure underline stays on hover */
+}

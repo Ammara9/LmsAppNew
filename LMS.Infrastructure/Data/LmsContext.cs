@@ -14,4 +14,5 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
     public DbSet<Module>? Modules { get; set; }
 
     public DbSet<Document>? Documents { get; set; }
+    public DbSet<Activity>? Activities { get; set; }
 }

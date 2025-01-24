@@ -14,11 +14,13 @@ namespace Domain.Models.Entities
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        //Foreign Keys
-        public int ActivityTypeId { get; set; }
+        public string ActivityType { get; set; } = string.Empty;
+
         public int ModuleId { get; set; }
 
+        //Foreign Keys
+        //public int ActivityTypeId { get; set; }
         //Navigation Properties
-        public ActivityType ActivityType { get; set; }
+        //public ActivityType ActivityType { get; set; }
     }
 }

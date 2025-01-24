@@ -1,0 +1,108 @@
+﻿@page "/activities/{moduleId:int}"
+
+@rendermode InteractiveWebAssembly
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+
+@attribute [Authorize]
+
+@if (module != null)
+{
+    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities For Module @module.Name!</h1>
+}
+@if (activities == null)
+{
+    <p>Loading activities...</p>
+}
+else if (activities.Count == 0)
+{
+    <p>No activities found for this module.</p>
+}
+else
+{
+    <div class="list-group mt-4">
+        @foreach (var activity in activities)
+        {
+            <div class="list-group-item mb-3" style="padding: 5px;">
+                <div class="p-2" style="background-color: lightblue; border-radius: 5px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold d-inline">@activity.Name</h5> :
+                            <span class="ms-2">@activity.Description</span>
+                            <p class="mb-1"> Duration: @activity.StartDate.ToShortDateString() / @activity.EndDate.ToShortDateString()</p>
+                        </div>
+
+                        
+                    </div>
+                    <hr />
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <div class="alert alert-success mt-2">@SuccessMessage</div>
+}
+
+@code {
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+
+    [Parameter]
+    public int moduleId { get; set; }
+
+    private ModuleDto? module; // To hold module details
+    private List<ActivitiesDto>? activities;
+    private string? SuccessMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchActivitiesAsync();
+        await FetchModuleAsync();
+    }
+
+    private async Task FetchActivitiesAsync()
+    {
+        try
+        {
+            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>($"api/module/{moduleId}/activities"))?.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching activities: {ex.Message}");
+        }
+    }
+
+    private async Task FetchModuleAsync()
+    {
+        try
+        {
+            module = await _apiService.GetAsync<ModuleDto>($"api/module/{moduleId}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching module: {ex.Message}");
+        }
+    }
+
+    // private async Task DeleteActivityAsync(int activityId)
+    // {
+    //     try
+    //     {
+    //         await _apiService.DeleteAsync($"api/module/{moduleId}/activities/{activityId}");
+    //         SuccessMessage = "Activity deleted successfully!";
+    //         await FetchActivitiesAsync(); // Refresh the list after deletion
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.Error.WriteLine($"Error deleting activity: {ex.Message}");
+    //         SuccessMessage = "Failed to delete activity.";
+    //     }
+    // }
+}

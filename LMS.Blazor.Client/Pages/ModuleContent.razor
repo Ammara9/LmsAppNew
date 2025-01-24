@@ -1,0 +1,33 @@
+﻿@page "/modulecontent"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+
+@attribute [Authorize]
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="text-center mb-4">
+        <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Module Content</h1>
+    </div>
+
+    <!-- Navigation Links in the Header -->
+    <div class="d-flex gap-5 mb-4">
+        <a href="/activities/1" class="text-decoration-underline fs-4 text-primary-dark hover-link dropdown-toggle">Activities</a>
+        <a href="/files/1" class="text-decoration-underline fs-4 text-primary-dark hover-link dropdown-toggle">Files</a>
+        <a href="/adddocument/@courseId/@moduleId" class="text-decoration-underline fs-4 text-primary-dark hover-link dropdown-toggle">Assignment Submission</a>
+        <a href="/documentlist/1" class="text-decoration-underline fs-4 text-primary-dark hover-link dropdown-toggle">Submitted Assignments</a>
+    </div>
+
+    <!-- Content Section (Optional) -->
+    <div class="mb-3">
+        <a href="/module/1" class="btn btn-success">Back to Module</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int courseId { get; set; }
+    [Parameter]
+    public int moduleId { get; set; }
+}

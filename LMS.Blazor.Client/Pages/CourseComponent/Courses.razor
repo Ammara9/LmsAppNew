@@ -22,35 +22,32 @@
 else
 {
     <!-- Modify the row-cols-md to 4 to show 4 cards per row on medium screens and above -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mt-4">
-        @foreach (var item in courses)
-        {
-            <div class="col">
-                <div class="card border-secondary">
-                    <div class="card-header">
-                        <a href="/module/@item.Id" class="card-title text-center text-decoration-underline" style="cursor: pointer; font-size: 24px; font-weight: bold;">
-                            @item.Name
-                        </a>
-
-
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><strong>Description:</strong> @item.Description</p>
-
-                        <div class="d-flex justify-content-center mb-3">
-                            <button class="btn btn-info mx-2" @onclick="() => EditCourse(item.Id)">Edit Course</button>
-                            <a href="/deletecourse" class="btn btn-danger mx-2" @* @onclick="() => DeleteCourse(item.Id) *@">Delete Course</a>
+    <div class="container mt-4">
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var item in courses)
+            {
+                <div class="col">
+                    <div class="card border-secondary h-100">
+                        <div class="card-header text-center">
+                            <a href="/module/@item.Id" class="card-title text-decoration-underline" style="cursor: pointer; font-size: 24px; font-weight: bold;">
+                                @item.Name
+                            </a>
                         </div>
-                        <div class="d-flex justify-content-center">
-                            <a href="/registerstudent" class="btn btn-success mx-2">Add Student</a>
-                            <a href="/addmodule/@item.Id" class="btn btn-warning mx-2">Add Module</a>
-                        </div>
+                        <div class="card-body">
+                            <p class="card-text"><strong>Description:</strong> @item.Description</p>
 
+                            
+                            <div class="d-flex justify-content-center">
+                                
+                                <a href="/addmodule/@item.Id" class="btn btn-warning mx-2">Back to Home</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
+
 }
 
 

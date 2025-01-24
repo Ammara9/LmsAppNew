@@ -26,37 +26,35 @@ else if (modules.Count == 0)
 }
 else
 {
-    <div class="list-group mt-4">
+   
+    <div class="row row-cols-1 row-cols-md-2 g-4">
         @foreach (var module in modules)
         {
-            <div class="list-group-item mb-3" style="padding: 5px;">
-                <div class="p-2" style="background-color: lightblue; border-radius: 5px;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="fw-bold d-inline">@module.Name</h5> :
-                            <span class="ms-2">@module.Description</span>
-                            <p class="mb-1"> Continues: @module.StartDate.ToShortDateString() / @module.EndDate.ToShortDateString()</p>
-                            
-                        </div>
-                       
-                        <AuthorizeView Roles="Admin, Teacher">
-                           
-                                <div class="d-flex gap-2">
-                                    <a href="/addactivity/@module.Id" class="btn btn-success">Add Activity</a>
-                                    <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary">Add Document</a>
-                                    <a href="/" class="btn btn-danger">Delete Module</a>
-                                </div>
-                           
-                        </AuthorizeView>
-                         
+            <div class="col">
+                <div class="card border-info h-100">
+                    <div class="card-header text-center">
+                        <a href="/modulecontent" class="card-title text-decoration-underline" style="cursor: pointer; font-size: 20px; font-weight: bold;">
+                           @module.Name
+                        </a>
                     </div>
-                    <hr />
-                    <documentlist Documents="documents" />
+                    <div class="card-body">
+                        <p class="card-text"><strong>Description:</strong> @module.Description</p>
+                        <p class="card-text"><strong>Duration:</strong> @module.StartDate.ToShortDateString() - @module.EndDate.ToShortDateString()</p>
+
+                        <div class="d-flex justify-content-center mb-3">
+                       @*      <a href="/addactivity/@module.Id" class="btn btn-success mx-2 btn-sm">Add Activity</a>
+                            <a href="/adddocument/@courseId/@module.Id" class="btn btn-primary mx-2 btn-sm">Add Document</a> *@
+                            <a href="/courses" class="btn btn-danger mx-2 btn-sm">Back to Coures</a>
+                            <a href="/modulecontent" class="btn btn-success mx-2 btn-sm">Go to Module Content</a>
+
+                        </div>
+                    </div>
                 </div>
-               
             </div>
         }
     </div>
+
+
 }
 
 @code {

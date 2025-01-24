@@ -10,7 +10,7 @@
 
 @attribute [Authorize]
 
-<h2>Add a New Document</h2>
+<h2>Submit an Assignment</h2>
 <EditForm Model="newDocumentDto" method="post">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -37,7 +37,7 @@
     </div>
 
     <div class="d-flex gap-2 mb-4">
-        <a href="/module/@moduleId" class="btn btn-primary">Back to Module</a>
+        <a href="/modulecontent" class="btn btn-primary">Back to Module Content</a>
         <button type="submit" class="btn btn-success" @onclick="AddDocumentAsync">Submit</button>
     </div>
 </EditForm>
@@ -50,12 +50,12 @@
 <h3>Existing Documents</h3>
 @if (documents == null)
 {
-    <p>Loading documents...</p>
+    <p></p>
 }
-else if (documents.Count == 0)
+@* else if (documents.Count == 0)
 {
     <p>No documents found for this module.</p>
-}
+} *@
 else
 {
     <div class="list-group mt-4">
