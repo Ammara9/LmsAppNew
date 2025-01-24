@@ -107,41 +107,52 @@ else
     }
     private async Task AddDocumentAsync()
     {
-        if (uploadedFile != null)
-        {
-            try
-            {
-                uploadPath = await UploadFileAsync(uploadedFile);
-                newDocumentDto.FilePath = uploadedFile;
-                newDocumentDto.ModuleId = moduleId;
-                newDocumentDto.UploadedAt = DateTime.Now;
-
-            var createdDocument = await _apiService.PostAsync<DocumentUploadDto, DocumentDto>($"api/courses/{courseId}/module/{moduleId}/document", newDocumentDto);
-
-                if (createdDocument != null)
-                {
-                    ShowMessage("Document uploaded successfully!",true);
-                    await FetchDocumentsAsync(); // Fetch the updated list of documents
-                    newDocumentDto = new DocumentUploadDto(); // Reset form
-                    uploadedFile = null; // Reset the file input
-                    isFileSelected = false;
-                }
-                else
-                {
-                    ShowMessage("Failed to upload the document.",false);
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error when uploading a document: {ex.Message}");
-                ShowMessage("Error uploading document: " + ex.Message, false);
-            }
-        }
-        else
+        if (uploadedFile == null)
         {
             ShowMessage("Please select a file to upload.", false);
         }
+        try
+        {
+            // uploadPath = await UploadFileAsync(uploadedFile);
+            // newDocumentDto.File = uploadedFile;
+            // newDocumentDto.ModuleId = moduleId;
+            // newDocumentDto.UploadedAt = DateTime.Now;
+
+            // Create a multipart form-data content
+            var content = new MultipartFormDataContent();
+
+            // Add the file content
+            var fileContent = new StreamContent(uploadedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)); // Max 10 MB
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(uploadedFile.ContentType);
+            content.Add(fileContent, "File", uploadedFile.Name);
+
+            // Add other form data
+            content.Add(new StringContent(newDocumentDto.Name), "Name");
+            content.Add(new StringContent(newDocumentDto.Description), "Description");
+
+            var createdDocument = await _apiService.PostMultipartFormDataAsync<DocumentDto>($"api/courses/{courseId}/module/{moduleId}/document", content);
+
+            if (createdDocument != null)
+            {
+                ShowMessage("Document uploaded successfully!",true);
+                await FetchDocumentsAsync(); // Fetch the updated list of documents
+                newDocumentDto = new DocumentUploadDto(); // Reset form
+                uploadedFile = null; // Reset the file input
+                isFileSelected = false;
+            }
+            else
+            {
+                ShowMessage("Failed to upload the document.",false);
+            }
+                
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error when uploading a document: {ex.Message}");
+            ShowMessage("Error uploading document: " + ex.Message, false);
+        }
+        
+        
         
     }
 
@@ -189,8 +200,8 @@ else
     private async Task OnFileChange(InputFileChangeEventArgs e)
     {
         uploadedFile = e.File;
-        var buffer = new byte[uploadedFile.Size];
-        await uploadedFile.OpenReadStream().ReadAsync(buffer);
+        //var buffer = new byte[uploadedFile.Size];
+        //await uploadedFile.OpenReadStream().ReadAsync(buffer);
     }
 
     private void ShowMessage(string message, bool isSuccess)

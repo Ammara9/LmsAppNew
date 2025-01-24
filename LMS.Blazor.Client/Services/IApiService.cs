@@ -11,9 +11,7 @@ public interface IApiService
     Task<TResponse?> GetAsyncById<TRequest, TResponse>(string endpoint, TRequest id);
     Task<TResponse?> PutAsyncById<TRequest, TResponse>(string endpoint, TRequest dto);
     Task<TResponse?> DeleteAsync<TRequest, TResponse>(string endpoint, TRequest id);
-   // Task<TResponse?> DeleteAsync<TResponse>(string endpoint, int id);
-    Task<HttpResponseMessage> PostMultipartFormDataAsync(
-        string uri,
-        MultipartFormDataContent content
-    );
+
+    // This method is used to send a POST request with a multipart/form-data content type.
+    Task<T?> PostMultipartFormDataAsync<T>(string endpoint, HttpContent content);
 }

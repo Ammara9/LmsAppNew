@@ -43,13 +43,19 @@ public class ClientApiService(
         return await CallApiAsync<object?, HttpResponseMessage>(endpoint, HttpMethod.Delete, id);
     }
 
-    public async Task<HttpResponseMessage> PostMultipartFormDataAsync(
-        string uri,
-        MultipartFormDataContent content
+    public async Task<T?> PostMultipartFormDataAsync<T>(
+        string endpoint,
+        HttpContent  content
     )
     {
-        var response = await httpClient.PostAsync(uri, content);
-        return response;
+        var response = await httpClient.PostAsync(endpoint, content);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<T>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        return default;
+        
     }
 
     private async Task<TResponse?> CallApiAsync<TRequest, TResponse>(
@@ -86,5 +92,10 @@ public class ClientApiService(
             CancellationToken.None
         );
         return res;
+    }
+
+    public Task<HttpResponseMessage> PostMultipartFormDataAsync(string uri, MultipartFormDataContent content)
+    {
+        throw new NotImplementedException();
     }
 }
