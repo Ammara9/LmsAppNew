@@ -86,7 +86,7 @@ namespace LMS.Presemtation.Controllers
 
         // POST: api/courses/{courseId}/modules/{moduleId}/document
         [HttpPost]
-        [Authorize] 
+        
         public async Task<ActionResult<DocumentDto>> PostDocument(int moduleId, [FromForm] DocumentUploadDto documentDto)
         {
 
@@ -133,7 +133,7 @@ namespace LMS.Presemtation.Controllers
                 {
                     Name = documentDto.Name,
                     Description = documentDto.Description,
-                    FilePath = $"/{uploadsDirectory}/{documentDto.File.Name}",
+                    FilePath = $"/{uploadsDirectory}/{documentDto.File}",
                     UploadedAt = documentDto.UploadedAt,
                     ModuleId = documentDto.ModuleId
                 };
@@ -151,14 +151,7 @@ namespace LMS.Presemtation.Controllers
                     },
                     document
                 );*/
-                return Ok(new DocumentDto
-                {
-                    Id = document.Id,
-                    Name = document.Name,
-                    Description = document.Description,
-                    FilePath = document.FilePath,
-                    UploadedAt = document.UploadedAt
-                });
+                return Ok(document);
             }
             catch (Exception ex)
             {

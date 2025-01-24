@@ -9,10 +9,11 @@
 
 @attribute [Authorize]
 
-@if (module != null)
+@if (moduleDto != null)
 {
-    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities For Module @module.Name!</h1>
+    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities For Module @moduleDto.Name!</h1>
 }
+<h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities For Module</h1>
 @if (activities == null)
 {
     <p>Loading activities...</p>
@@ -35,15 +36,18 @@ else
                             <p class="mb-1"> Duration: @activity.StartDate.ToShortDateString() / @activity.EndDate.ToShortDateString()</p>
                         </div>
 
-                        <div class="d-flex gap-2">
+                       @* <div class="d-flex gap-2">
                             <a href="/editactivity/@activity.Id" class="btn btn-warning">Edit Activity</a>
                             <button class="btn btn-danger">Delete Activity</button>
-                        </div>
+                          </div>*@
                     </div>
                     <hr />
                 </div>
             </div>
         }
+        <div class="d-flex justify-content-between mt-4">
+            <a href="/module/@moduleId" class="btn btn-primary">Back to Module</a>
+        </div>
     </div>
 }
 
@@ -56,24 +60,27 @@ else
     [Inject]
     private IApiService _apiService { get; set; } = default!;
 
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
     [Parameter]
     public int moduleId { get; set; }
 
-    private ModuleDto? module; // To hold module details
+    private ModuleDto? moduleDto; // To hold module details
     private List<ActivitiesDto>? activities;
     private string? SuccessMessage;
 
     protected override async Task OnInitializedAsync()
     {
         await FetchActivitiesAsync();
-        // await FetchModuleAsync();
+        //await FetchModuleAsync();
     }
 
     private async Task FetchActivitiesAsync()
     {
         try
         {
-            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>($"api/module/{moduleId}/activities"))?.ToList();
+            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>($"api/modules/{moduleId}/activities"))?.ToList() ?? [];
         }
         catch (Exception ex)
         {
@@ -81,17 +88,18 @@ else
         }
     }
 
-    // private async Task FetchModuleAsync()
-    // {
-    //     try
-    //     {
-    //         module = await _apiService.GetAsync<ModuleDto>($"api/module/{moduleId}");
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.Error.WriteLine($"Error fetching module: {ex.Message}");
-    //     }
-    // }
+    private async Task FetchModuleAsync()
+    {
+        try
+        {
+            var moduleRequest = new ModuleRequestDto { Id = moduleId };
+            moduleDto = (await _apiService.GetAsyncById<ModuleRequestDto, ModuleDto>($"api/module/{moduleRequest.Id}", moduleRequest));
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching module: {ex.Message}");
+        }
+    }
 
     // private async Task DeleteActivityAsync(int activityId)
     // {

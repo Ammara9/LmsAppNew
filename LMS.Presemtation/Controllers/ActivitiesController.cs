@@ -25,16 +25,14 @@ namespace LMS.Presentation.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ActivitiesDto>>> GetActivities(int moduleId)
         {
-            var module = await _context
-                .Modules!.Include(m => m.Activities)
-                .FirstOrDefaultAsync(m => m.Id == moduleId);
+            var moduleActivities = await _context.Activities!.Where(p => p.ModuleId == moduleId).ToListAsync();
 
-            if (module == null)
+            if (moduleActivities == null)
             {
                 return NotFound($"Module with ID {moduleId} not found.");
             }
 
-            var activityDtos = module.Activities.Select(a => new ActivitiesDto
+            var activityDtos = moduleActivities.Select(a => new ActivitiesDto
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -93,7 +91,8 @@ namespace LMS.Presentation.Controllers
                 Description = activitiesDto.Description,
                 StartDate = activitiesDto.StartDate,
                 EndDate = activitiesDto.EndDate,
-                ModuleId = moduleId,
+                ModuleId = moduleId
+                
             };
 
             _context.Activities!.Add(activity);
