@@ -16,6 +16,6 @@ namespace LMS.Shared.DTOs
         public DateTime EndDate { get; set; }
         public int CourseId { get; set; } //Foreign key
 
-        //public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+        public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     }
 }

@@ -10,30 +10,29 @@ public class LmsContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
     public LmsContext(DbContextOptions<LmsContext> options)
         : base(options) { }
 
-    public DbSet<Course> Courses { get; set; }
+    public DbSet<Course>? Courses { get; set; }
 
-    public DbSet<Module> Modules { get; set; }
+    public DbSet<Module>? Modules { get; set; }
     public DbSet<Document>? Documents { get; set; }
 
-    public DbSet<Enrollment> Enrollments { get; set; }
+    public DbSet<Enrollment>? Enrollments { get; set; }
+    public DbSet<Activity>? Activities { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        base.OnModelCreating(builder);
+    //protected override void OnModelCreating(ModelBuilder builder)
+    //{
+    //    base.OnModelCreating(builder);
 
-        // Configure Enrollment relationships
-        builder.Entity<Enrollment>()
-            .HasOne(e => e.Course)
-            .WithMany(c => c.Enrollments)
-            .HasForeignKey(e => e.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
+    //    // Configure Enrollment relationships
+    //    builder
+    //        .Entity<Enrollment>()
+    //        .HasOne(e => e.Course)
+    //        .WithMany(c => c.Enrollments)
+    //        .HasForeignKey(e => e.CourseId);
 
-        builder.Entity<Enrollment>()
-            .HasOne(e => e.ApplicationUser)
-            .WithMany(u => u.Enrollments)
-            .HasForeignKey(e => e.StudentId)
-            .OnDelete(DeleteBehavior.Cascade);
-    }
-
-
+    //    builder
+    //        .Entity<Enrollment>()
+    //        .HasOne(e => e.ApplicationUser)
+    //        .WithMany(u => u.Enrollments)
+    //        .HasForeignKey(e => e.StudentId);
+    //}
 }

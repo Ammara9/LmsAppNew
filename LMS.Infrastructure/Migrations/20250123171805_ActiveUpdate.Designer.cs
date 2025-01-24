@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(LmsContext))]
-    [Migration("20250123145746_LastUpdate")]
-    partial class LastUpdate
+    [Migration("20250123171805_ActiveUpdate")]
+    partial class ActiveUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,6 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ActivityTypeId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -55,28 +52,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActivityTypeId");
-
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Activity");
-                });
-
-            modelBuilder.Entity("Domain.Models.Entities.ActivityType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ActivityType");
+                    b.ToTable("Activities");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.ApplicationUser", b =>
@@ -229,18 +207,21 @@ namespace LMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Enrollments");
                 });
@@ -412,19 +393,11 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Activity", b =>
                 {
-                    b.HasOne("Domain.Models.Entities.ActivityType", "ActivityType")
-                        .WithMany()
-                        .HasForeignKey("ActivityTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Models.Entities.Module", null)
                         .WithMany("Activities")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ActivityType");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Document", b =>
@@ -438,15 +411,13 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Enrollment", b =>
                 {
+                    b.HasOne("Domain.Models.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("Domain.Models.Entities.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
