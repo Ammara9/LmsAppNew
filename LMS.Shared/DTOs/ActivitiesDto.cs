@@ -17,6 +17,6 @@ namespace LMS.Shared.DTOs
         public string ActivityType { get; set; } = string.Empty;
 
         public int ModuleId { get; set; }
-
+        public int CourseId { get; set; }
     }
 }

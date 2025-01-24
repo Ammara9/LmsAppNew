@@ -1,5 +1,4 @@
-﻿@page "/activities/{moduleId:int}"
-
+﻿@page "/activities/{courseId:int}/{moduleId:int}"
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
@@ -12,7 +11,7 @@
 
 @if (module != null)
 {
-    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities For Module @module.Name!</h1>
+    <h1 class="px-5" style="text-align: center; color: darkblue; margin-bottom: 20px;">Activities for Module @module.Name!</h1>
 }
 @if (activities == null)
 {
@@ -33,10 +32,9 @@ else
                         <div>
                             <h5 class="fw-bold d-inline">@activity.Name</h5> :
                             <span class="ms-2">@activity.Description</span>
-                            <p class="mb-1"> Duration: @activity.StartDate.ToShortDateString() / @activity.EndDate.ToShortDateString()</p>
+                            <p class="mb-1">Duration: @activity.StartDate.ToShortDateString() / @activity.EndDate.ToShortDateString()</p>
+                            <p class="mb-1">Type: @activity.ActivityType</p>
                         </div>
-
-                        
                     </div>
                     <hr />
                 </div>
@@ -55,6 +53,9 @@ else
     private IApiService _apiService { get; set; } = default!;
 
     [Parameter]
+    public int courseId { get; set; }
+
+    [Parameter]
     public int moduleId { get; set; }
 
     private ModuleDto? module; // To hold module details
@@ -71,7 +72,8 @@ else
     {
         try
         {
-            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>($"api/module/{moduleId}/activities"))?.ToList();
+            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>(
+                $"api/courses/{courseId}/modules/{moduleId}/activities"))?.ToList();
         }
         catch (Exception ex)
         {
@@ -83,26 +85,11 @@ else
     {
         try
         {
-            module = await _apiService.GetAsync<ModuleDto>($"api/module/{moduleId}");
+            module = await _apiService.GetAsync<ModuleDto>($"api/courses/{courseId}/modules/{moduleId}");
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error fetching module: {ex.Message}");
         }
     }
-
-    // private async Task DeleteActivityAsync(int activityId)
-    // {
-    //     try
-    //     {
-    //         await _apiService.DeleteAsync($"api/module/{moduleId}/activities/{activityId}");
-    //         SuccessMessage = "Activity deleted successfully!";
-    //         await FetchActivitiesAsync(); // Refresh the list after deletion
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.Error.WriteLine($"Error deleting activity: {ex.Message}");
-    //         SuccessMessage = "Failed to delete activity.";
-    //     }
-    // }
 }

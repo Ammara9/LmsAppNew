@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Presentation.Controllers
 {
-    [Route("api/modules/{moduleId}/activities")]
+    [Route("api/courses/{courseId}/modules/{moduleId}/activities")]
     [ApiController]
     public class ActivitiesController : ControllerBase
     {
@@ -21,17 +21,20 @@ namespace LMS.Presentation.Controllers
             _context = context;
         }
 
-        // GET: api/modules/{moduleId}/activities
+        // GET: api/courses/{courseId}/modules/{moduleId}/activities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ActivitiesDto>>> GetActivities(int moduleId)
+        public async Task<ActionResult<IEnumerable<ActivitiesDto>>> GetActivities(
+            int courseId,
+            int moduleId
+        )
         {
             var module = await _context
                 .Modules!.Include(m => m.Activities)
-                .FirstOrDefaultAsync(m => m.Id == moduleId);
+                .FirstOrDefaultAsync(m => m.Id == moduleId && m.CourseId == courseId);
 
             if (module == null)
             {
-                return NotFound($"Module with ID {moduleId} not found.");
+                return NotFound($"Module with ID {moduleId} for Course ID {courseId} not found.");
             }
 
             var activityDtos = module.Activities.Select(a => new ActivitiesDto
@@ -42,23 +45,30 @@ namespace LMS.Presentation.Controllers
                 StartDate = a.StartDate,
                 EndDate = a.EndDate,
                 ModuleId = a.ModuleId,
+                CourseId = a.CourseId,
                 ActivityType = a.ActivityType,
             });
 
             return Ok(activityDtos);
         }
 
-        // GET: api/modules/{moduleId}/activities/{id}
+        // GET: api/courses/{courseId}/modules/{moduleId}/activities/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ActivitiesDto>> GetActivity(int moduleId, int id)
+        public async Task<ActionResult<ActivitiesDto>> GetActivity(
+            int courseId,
+            int moduleId,
+            int id
+        )
         {
             var activity = await _context.Activities!.FirstOrDefaultAsync(a =>
-                a.Id == id && a.ModuleId == moduleId
+                a.Id == id && a.ModuleId == moduleId && a.CourseId == courseId
             );
 
             if (activity == null)
             {
-                return NotFound($"Activity with ID {id} for Module ID {moduleId} not found.");
+                return NotFound(
+                    $"Activity with ID {id} for Module ID {moduleId} and Course ID {courseId} not found."
+                );
             }
 
             var activityDto = new ActivitiesDto
@@ -69,24 +79,28 @@ namespace LMS.Presentation.Controllers
                 StartDate = activity.StartDate,
                 EndDate = activity.EndDate,
                 ModuleId = activity.ModuleId,
+                CourseId = activity.CourseId,
                 ActivityType = activity.ActivityType,
             };
 
             return Ok(activityDto);
         }
 
-        // POST: api/modules/{moduleId}/activities
+        // POST: api/courses/{courseId}/modules/{moduleId}/activities
         [HttpPost]
         public async Task<ActionResult<ActivitiesDto>> PostActivity(
+            int courseId,
             int moduleId,
             ActivitiesDto activitiesDto
         )
         {
-            var module = await _context.Modules!.FindAsync(moduleId);
+            var module = await _context.Modules!.FirstOrDefaultAsync(m =>
+                m.Id == moduleId && m.CourseId == courseId
+            );
 
             if (module == null)
             {
-                return NotFound($"Module with ID {moduleId} not found.");
+                return NotFound($"Module with ID {moduleId} for Course ID {courseId} not found.");
             }
 
             var activity = new Activity
@@ -96,6 +110,7 @@ namespace LMS.Presentation.Controllers
                 StartDate = activitiesDto.StartDate,
                 EndDate = activitiesDto.EndDate,
                 ModuleId = moduleId,
+                CourseId = courseId,
                 ActivityType = activitiesDto.ActivityType,
             };
 
@@ -106,22 +121,29 @@ namespace LMS.Presentation.Controllers
 
             return CreatedAtAction(
                 nameof(GetActivity),
-                new { moduleId, id = activity.Id },
+                new
+                {
+                    courseId,
+                    moduleId,
+                    id = activity.Id,
+                },
                 activitiesDto
             );
         }
 
-        // DELETE: api/modules/{moduleId}/activities/{id}
+        // DELETE: api/courses/{courseId}/modules/{moduleId}/activities/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteActivity(int moduleId, int id)
+        public async Task<IActionResult> DeleteActivity(int courseId, int moduleId, int id)
         {
             var activity = await _context.Activities!.FirstOrDefaultAsync(a =>
-                a.Id == id && a.ModuleId == moduleId
+                a.Id == id && a.ModuleId == moduleId && a.CourseId == courseId
             );
 
             if (activity == null)
             {
-                return NotFound($"Activity with ID {id} for Module ID {moduleId} not found.");
+                return NotFound(
+                    $"Activity with ID {id} for Module ID {moduleId} and Course ID {courseId} not found."
+                );
             }
 
             _context.Activities!.Remove(activity);

@@ -17,6 +17,7 @@ namespace Domain.Models.Entities
         public string ActivityType { get; set; } = string.Empty;
 
         public int ModuleId { get; set; }
+        public int CourseId { get; set; }
 
         //Foreign Keys
         //public int ActivityTypeId { get; set; }

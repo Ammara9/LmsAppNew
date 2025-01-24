@@ -1,4 +1,4 @@
-﻿@page "/addactivity/{moduleId:int}/"
+﻿@page "/addactivity/{courseId:int}/{moduleId:int}/"
 @rendermode InteractiveWebAssembly
 
 @using LMS.Blazor.Client.Services
@@ -38,6 +38,13 @@
                 </div>
 
                 <div class="form-group row mb-4">
+                    <label for="activitytype" class="col-sm-12 col-md-3 col-form-label fw-bold">Activity Type</label>
+                    <div class="col-sm-12 col-md-9">
+                        <InputText id="activitytype" class="form-control form-control-lg" @bind-Value="newActivityDto.ActivityType" placeholder="Enter activity description" />
+                    </div>
+                </div>
+
+                <div class="form-group row mb-4">
                     <label for="startDate" class="col-sm-12 col-md-3 col-form-label fw-bold">Start Date</label>
                     <div class="col-sm-12 col-md-9">
                         <InputDate id="startDate" class="form-control form-control-lg" @bind-Value="newActivityDto.StartDate" />
@@ -64,12 +71,16 @@
 {
     <div class="alert alert-success mt-2">@SuccessMessage</div>
 }
+
 @code {
     [Inject]
     private IApiService _apiService { get; set; } = default!;
 
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    [Parameter]
+    public int courseId { get; set; }
 
     [Parameter]
     public int moduleId { get; set; }
@@ -81,35 +92,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await FetchActivitiesAsync();
         await FetchModuleAsync(); // Fetch the module details
     }
 
     private async Task AddActivityAsync()
     {
-        var createdActivity = await _apiService.PostAsync<ActivitiesDto, ActivitiesDto>($"api/modules/{moduleId}/activities", newActivityDto);
-
-        if (createdActivity != null)
-        {
-            SuccessMessage = "Activity created successfully!";
-            await FetchActivitiesAsync(); // Fetch the updated list of activities
-            newActivityDto = new ActivitiesDto { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) }; // Reset form
-        }
-        else
-        {
-            SuccessMessage = "Failed to create the activity.";
-        }
-    }
-
-    private async Task FetchActivitiesAsync()
-    {
         try
         {
-            activities = (await _apiService.GetAsync<IEnumerable<ActivitiesDto>>($"api/module/{moduleId}/activities"))?.ToList();
+            var createdActivity = await _apiService.PostAsync<ActivitiesDto, ActivitiesDto>(
+                $"api/courses/{courseId}/modules/{moduleId}/activities",
+                newActivityDto
+            );
+
+            if (createdActivity != null)
+            {
+                SuccessMessage = "Activity created successfully!";
+                newActivityDto = new ActivitiesDto { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(7) }; // Reset form
+            }
+            else
+            {
+                SuccessMessage = "Failed to create the activity.";
+            }
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching activities: {ex.Message}");
+            SuccessMessage = $"Error: {ex.Message}";
         }
     }
 
@@ -117,7 +124,7 @@
     {
         try
         {
-            module = await _apiService.GetAsync<ModuleDto>($"api/module/{moduleId}");
+            module = await _apiService.GetAsync<ModuleDto>($"api/courses/{courseId}/modules/{moduleId}");
         }
         catch (Exception ex)
         {
