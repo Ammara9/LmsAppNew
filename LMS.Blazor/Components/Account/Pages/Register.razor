@@ -90,7 +90,15 @@
 @*     </section> *@
 @* </div> *@
 
+@if (!string.IsNullOrEmpty(ViewUserMessage))
+{
+	<div class="alert @(IsSuccess ? "alert-success" : "alert-danger") mt-2">@ViewUserMessage</div>
+}
+
 @code {
+
+	private string? ViewUserMessage;
+	private bool IsSuccess = true;
 	private IEnumerable<IdentityError>? identityErrors;
 
 	[SupplyParameterFromForm]
@@ -128,6 +136,7 @@
 		await UserManager.AddToRoleAsync(user, Input.Role); // Add to selected role
 
 		Logger.LogInformation("User created a new account with password.");
+		ShowMessage("User created a new account with password.", true);
 
 		var userId = await UserManager.GetUserIdAsync(user);
 		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -143,6 +152,7 @@
 		identityErrors = null;
 
 		Logger.LogInformation("Registration successful. The form has been reset.");
+		ShowMessage("Registration successful. The form has been reset.", true);
 	}
 
 	private ApplicationUser CreateUser()
@@ -155,6 +165,7 @@
 		{
 			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
 				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+				ShowMessage("Failed to create a new account. Please try again.", false);
 		}
 	}
 
@@ -192,5 +203,11 @@
 		[Required]
 		[Display(Name = "Role")]
 		public string Role { get; set; } = ""; // "Teacher" or "Student"
+	}
+
+	private void ShowMessage(string message, bool isSuccess)
+	{
+		ViewUserMessage = message;
+		IsSuccess = isSuccess;
 	}
 }
